@@ -1,46 +1,30 @@
-using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Text.Json.Serialization;
 using CrossyDeathmatch.Server;
-using CrossyDeathmatch.Server.Networking;
-using CrossyDeathmatch.Server.Persistence;
-using CrossyDeathmatch.Shared;
 
+// Options: --port 5000 --min-players 2 --round-seconds 180
 var builder = WebApplication.CreateBuilder(args);
-var settings = ServerSettings.From(builder.Configuration);
+var port = builder.Configuration.GetValue("port", 5000);
 
-builder.WebHost.UseUrls($"http://0.0.0.0:{settings.Port}");
-builder.Services.AddSingleton(settings);
-builder.Services.AddSingleton(new JsonDatabase(Path.Combine(builder.Environment.ContentRootPath, "data", "db.json")));
-builder.Services.AddSingleton<GameServer>();
-builder.Services
-    .AddSignalR()
-    .AddJsonProtocol(options => options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<Game>();
 
 var app = builder.Build();
+app.MapGet("/", () => "Crossy Deathmatch server is running. Point the client at this address.");
+app.MapHub<GameHub>("/game");
 
-app.MapGet("/", () => $"Crossy Deathmatch server is running. Point the client at this address. " +
-                      $"Min players: {settings.MinPlayers}, round length: {settings.RoundSeconds}s.");
-app.MapHub<GameHub>(HubRoutes.GameHub);
+// Create the game now so its timer is running before anyone connects.
+app.Services.GetRequiredService<Game>();
 
-app.Lifetime.ApplicationStarted.Register(() =>
+Console.WriteLine($"Crossy Deathmatch server on port {port}");
+Console.WriteLine($"  This machine:  http://localhost:{port}");
+foreach (var address in NetworkInterface.GetAllNetworkInterfaces()
+             .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+             .SelectMany(n => n.GetIPProperties().UnicastAddresses)
+             .Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork))
 {
-    // Resolve the server eagerly so its room-list timer is running before anyone connects.
-    app.Services.GetRequiredService<GameServer>();
-
-    Console.WriteLine();
-    Console.WriteLine($"  Crossy Deathmatch server on port {settings.Port}");
-    Console.WriteLine($"  Min players to start: {settings.MinPlayers}   Round length: {settings.RoundSeconds}s");
-    Console.WriteLine($"  This machine:  http://localhost:{settings.Port}");
-    foreach (var address in LanAddresses()) Console.WriteLine($"  Same network:  http://{address}:{settings.Port}");
-    Console.WriteLine();
-});
+    Console.WriteLine($"  Same network:  http://{address.Address}:{port}");
+}
 
 app.Run();
-
-static IEnumerable<IPAddress> LanAddresses() => NetworkInterface.GetAllNetworkInterfaces()
-    .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-    .SelectMany(n => n.GetIPProperties().UnicastAddresses)
-    .Select(a => a.Address)
-    .Where(a => a.AddressFamily == AddressFamily.InterNetwork);

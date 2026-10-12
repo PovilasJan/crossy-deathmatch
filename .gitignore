@@ -2,4 +2,5 @@ bin/
 obj/
 .vs/
 *.user
-src/CrossyDeathmatch.Server/data/
+data/
+__pycache__/

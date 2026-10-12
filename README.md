@@ -1,15 +1,15 @@
 # Crossy Deathmatch
 
 A 2D multiplayer Crossy-Road-style game for T120B516 (Objektinis programų projektavimas).
-Three **runners** hop across an endless map of roads, rivers and railways. The fourth player, the
-**Mastermind**, watches the whole map from above and throws hazards at them.
+Runners hop across an endless map of roads and railways. One player, the **Mastermind**, watches
+the whole map and throws hazards at them.
 
-![Gameplay: runners crossing roads and a river while the Mastermind's rain and a boulder hit the map](docs/screenshots/4-gameplay.png)
+![A runner hopping between cars](docs/screenshots/runner.png)
 
 - **Language:** C# / .NET 10, no game framework
-- **Graphics:** WinForms + System.Drawing (GDI+), everything drawn from rectangles and ellipses
-- **Networking:** client–server over SignalR (WebSockets), messages as JSON
-- **Persistence:** player profiles and match history in a JSON file (`src/CrossyDeathmatch.Server/data/db.json`)
+- **Graphics:** WinForms + System.Drawing, everything drawn from rectangles and ellipses
+- **Networking:** client–server over SignalR (WebSockets), game state sent as JSON
+- **Kept deliberately simple:** 8 classes and 4 enums, no design patterns
 
 ## Running it
 
@@ -19,60 +19,47 @@ You need the .NET 10 SDK. From the repository root:
 dotnet build CrossyDeathmatch.sln
 ```
 
-1. **Start the server** (it prints the addresses other machines can use):
+1. **Start the server.** It prints the addresses other machines can use.
 
    ```bash
    dotnet run --project src/CrossyDeathmatch.Server
    ```
 
-   Options: `--port 5000`, `--min-players 4` (players needed before roles are dealt, 1–4), `--round-seconds 180`.
+   Options: `--port 5000`, `--min-players 4` (players needed before a round starts, 1–4),
+   `--round-seconds 180`. To test alone: `--min-players 1 --round-seconds 60`.
 
-2. **Start a client for each player** (on the same PC or any PC on the network):
+2. **Start a client for each player**, on the same PC or any PC on the network:
 
    ```bash
    dotnet run --project src/CrossyDeathmatch.Client
    ```
 
-   Options: `--server http://192.168.1.20:5000`, `--name Povilas`. You can also type both into the first screen.
-
-3. **Not enough people?** Fill the room with bots. Create a room in a client, then:
-
-   ```bash
-   dotnet run --project src/CrossyDeathmatch.Bots -- --count 3 --room ABCD
-   ```
-
-   Without `--room` the bots create their own public room and print its code.
-   `--count 4 --exit-after-game` runs a full round with bots only and prints the result (a quick smoke test).
-
-For quick testing with fewer players, start the server with `--min-players 2 --round-seconds 60`.
+   Options: `--server http://192.168.1.20:5000`, `--name Povilas`. Both can also be typed in the window.
 
 ## How a game goes
 
-1. Sign in with a nickname (nicknames are unique among connected players).
-2. Create a public or private room, join one by its 4-letter code, or pick one from the public list.
-3. When the room has enough players and **everyone is ready**, the server picks a random Mastermind.
-4. Runners pick different animals, everyone readies up again, and the round starts.
-5. The round ends when every runner is out (**Mastermind wins**) or the timer runs out
-   (**the best surviving runner wins**). Results are saved, and after 10 seconds everyone is back in the room.
+1. Type the server address and a nickname, then **Connect**. Up to 4 players share one lobby.
+2. Pick an animal and press **Ready**.
+3. When enough players are ready, the round starts. With 2 or more players, one random player becomes the Mastermind.
+4. The round ends when every runner is out (**the Mastermind wins**) or the time runs out
+   (**the best surviving runner wins**). The result appears in the lobby, and everyone can ready up again.
 
-If someone leaves while animals are being picked, the room goes back to the lobby. If someone leaves mid-round,
-they are marked as left and the round carries on. The host role passes to the next player, and empty rooms close.
-
-### Controls
+Players can't join while a round is running. Someone who leaves mid-round is marked as out.
 
 | Role | Controls |
 |---|---|
 | Runner | `W A S D` or arrow keys: one hop per press |
-| Mastermind | `1`–`5` or click a button to pick an ability, click the map to use it, `Esc` / right-click to cancel |
+| Mastermind | `1`–`4` or click a button to pick an ability, then click the map. `Esc` or right-click cancels |
 
-### Rules and numbers
+### Rules
 
-All tunables live in [`GameRules.cs`](src/CrossyDeathmatch.Shared/GameRules.cs), [`CharacterCatalog.cs`](src/CrossyDeathmatch.Shared/CharacterCatalog.cs) and [`AbilityCatalog.cs`](src/CrossyDeathmatch.Shared/AbilityCatalog.cs).
+All numbers are in [`Shared.cs`](src/CrossyDeathmatch.Shared/Shared.cs) (`Rules`).
 
-- **Map:** 13 columns wide and endless. Lanes are generated in groups as runners advance: grass (safe, has trees and pickups), road (cars and trucks), river (stand on logs or drown, and don't get carried off the edge), rail (a train comes after a flashing warning). Difficulty (speed, density) grows with distance.
-- **Scoring:** +1 per new lane reached, +5 per coin.
-- **Death:** lose a life, respawn on the nearest grass behind you after 1.5 s, then 2 s invulnerable. No lives left means you're out. You can't go back more than 5 lanes.
-- **Pickups:** coin, speed boost (hops about 2× faster for 6 s), extra life.
+- **Map:** 13 columns wide and endless. Grass (safe, has trees and coins), roads (cars and trucks) and
+  rails (a train comes after a flashing signal). Speed and density grow with distance.
+- **Score:** +1 for every new lane reached, +5 per coin.
+- **Death:** lose a life, respawn on the nearest grass behind you after 1.5 s, then 2 s of invulnerability.
+  No lives left means you're out. You can't go back more than 5 lanes.
 
 | Animal | Lives | Hop cooldown |
 |---|---|---|
@@ -85,54 +72,49 @@ The Mastermind starts with 40 energy and regains 6 per second (max 100).
 
 | Ability | Cost | Cooldown | Target | Effect |
 |---|---|---|---|---|
-| Send car | 12 | 1.2 s | road lane | extra car |
-| Drop boulder | 25 | 3 s | tile | warning for 1 s, crushes, then blocks the tile for 8 s |
-| Release fox | 30 | 6 s | grass lane | fox paces the lane for 15 s |
-| Rain | 45 | 20 s | — | all runners hop 1.8× slower for 10 s |
-| Night | 55 | 25 s | — | runners only see a small circle around themselves for 10 s |
+| Send car | 12 | 1.2 s | road lane | an extra car |
+| Drop boulder | 25 | 3 s | tile | lands after 1 s and crushes, then blocks the tile for 8 s |
+| Release fox | 30 | 6 s | grass lane | a fox paces the lane for 15 s |
+| Rain | 45 | 20 s | none | every runner hops 1.8× slower for 10 s |
 
-## Architecture
+![The Mastermind's view during rain](docs/screenshots/mastermind.png)
 
-The server runs the game (authoritative server). Clients only send input (`Move`, `UseAbility`, lobby actions).
-Every room runs its own 20 Hz loop and sends each player a full snapshot. The client keeps a small buffer of
-snapshots and draws about 90 ms in the past, blending between two snapshots so movement stays smooth at 60 fps.
+## How it works
+
+The server runs the game. Clients only send input; the server sends everyone the whole game state
+as JSON, 20 times a second during a round.
 
 ```
-Client (WinForms)                         Server (ASP.NET Core)
- ConnectView/LobbyView/RoomView/GameView   GameHub ──► GameServer ──► GameSession (room)
-        │                                                               │  20 Hz loop
- ServerConnection ◄──── SignalR / JSON ────► IGameClient messages       ▼
- SnapshotBuffer → WorldRenderer/HudRenderer                            GameRound
-                                                          GameMap · MapGenerator · Lane · Obstacles
-                                                          Runner · Mastermind · Abilities
-                                                          CollisionResolver · ScoreBoard · WorldEffects
-                                                        JsonDatabase
+Client (WinForms)                              Server (ASP.NET Core)
+ MainForm  ── Join / PickAnimal / SetReady ──►  GameHub ──► Game
+           ── Move / UseAbility ─────────────►               │ 20 Hz timer
+           ◄── "State" (GameState as JSON) ──                ▼
+           ◄── "Message" (text) ──────────────         GameState: Players, Lanes, Obstacles
 ```
 
-### Projects and packages
+| Project | File | Contents |
+|---|---|---|
+| `CrossyDeathmatch.Shared` | `Shared.cs` | `Rules`; the data classes `GameState`, `Player`, `Lane`, `Obstacle`; enums |
+| `CrossyDeathmatch.Server` | `Program.cs` | starts the web server and SignalR |
+| | `GameHub.cs` | the SignalR endpoint; passes every call to `Game` |
+| | `Game.cs` | lobby, round simulation and map generation |
+| `CrossyDeathmatch.Client` | `MainForm.cs` | the window: lobby controls, connection, drawing and input |
 
-| Project / namespace | Main classes |
+The server's model classes are the ones sent over the network, so there is no separate set of
+message types. `Game` locks its `GameState` in every method, including the timer, so hub calls and
+the game loop never change it at the same time. The state is turned into JSON while that lock is held.
+
+### UML class diagram
+
+[`docs/uml/`](docs/uml/) has the class diagram, generated from the code:
+
+| File | What it is |
 |---|---|
-| `CrossyDeathmatch.Shared` | `GameRules`, `CharacterCatalog`, `AbilityCatalog`, `IGameClient`, `HubMethods`, DTO records (`SnapshotDto`, `RoomDto`, …), enums |
-| `Server.Networking` | `GameHub`, `GameServer`, `GameSession`, `PlayerConnection` |
-| `Server.Gameplay` | `GameRound`, `IRoundEvents`, `GameMap`, `MapGenerator`, `Lane`, `TrafficSettings`, `Runner`, `Mastermind`, `WorldEffects`, `CollisionResolver`, `ScoreBoard`, `ScoreEntry` |
-| `Server.Gameplay.Obstacles` | `Obstacle` (abstract), `Car`, `Log`, `Train`, `Fox`, `Boulder` |
-| `Server.Gameplay.Abilities` | `Ability` (abstract), `IAbilityContext`, `SpawnCarAbility`, `DropBoulderAbility`, `SpawnFoxAbility`, `RainAbility`, `NightAbility` |
-| `Server.Persistence` | `JsonDatabase`, `MatchRecord` |
-| `Client.Networking` | `ServerConnection`, `SnapshotBuffer` |
-| `Client.Rendering` | `WorldRenderer`, `HudRenderer`, `Camera`, `RunnerAnimator`, `Sprites`, `Palette` |
-| `Client.Views` | `MainForm`, `ConnectView`, `LobbyView`, `RoomView`, `CharacterCard`, `GameView` |
-| `CrossyDeathmatch.Bots` | `Bot`, `BotOptions` |
+| `class-diagram.puml` | PlantUML source |
+| `CrossyDeathmatch.uml` / `.xmi` | UML model to import into MSOSA / MagicDraw, see [`MSOSA-IMPORT.md`](docs/uml/MSOSA-IMPORT.md) |
 
-### Thread safety
-
-- `GameServer` has one lock for players and rooms. Each `GameSession` has its own lock, which its game loop also takes.
-- Locks are always taken in the same order: server, then session.
-- A session never calls back into the server. Room-list changes are only flagged and broadcast by a timer, so the locks can't deadlock.
-
-## Prototype checklist (requirements part 1, item 5)
-
-- [x] Client–server communication: SignalR hub with JSON; lobby, rooms, ready/roles/animals, input, snapshots
-- [x] Graphics: System.Drawing rendering of map, obstacles, animals, effects and HUD
-- [x] Game control: grid hopping with the keyboard, Mastermind abilities with keyboard and mouse
-- [x] Several rooms in parallel, disconnect handling, results saved to the JSON database
+```bash
+python docs/uml/cs2puml.py            # sources -> class-diagram.puml
+python docs/uml/csoutline.py --diff   # checks nothing is missing
+python docs/uml/puml2xmi.py           # .puml   -> CrossyDeathmatch.uml / .xmi
+```

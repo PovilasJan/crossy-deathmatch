@@ -1,0 +1,270 @@
+@startuml CrossyDeathmatch
+title Crossy Deathmatch - full class diagram
+
+' Generated from the C# sources by docs/uml/cs2puml.py - do not edit by hand.
+' Verify with: python docs/uml/csoutline.py --diff
+' Regenerate the MSOSA import files with: python docs/uml/puml2xmi.py
+
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  BorderColor #444444
+  ArrowColor #444444
+}
+skinparam defaultFontName "Segoe UI"
+skinparam nodesep 30
+skinparam ranksep 45
+hide empty members
+
+package "CrossyDeathmatch.Shared" <<Frame>> {
+  class GameState {
+    + Time : long
+    + Playing : bool
+    + TimeLeftMs : int
+    + RainUntil : long
+    + Result : string?
+    + Players : List<Player>
+    + Lanes : List<Lane>
+  }
+  class Lane {
+    + Index : int
+    + Type : LaneType
+    + Speed : double
+    + Trees : List<int>
+    + Coins : List<int>
+    + Obstacles : List<Obstacle>
+    + NextTrainAt : long
+    + SpawnTimer : double
+  }
+  class Obstacle {
+    + Kind : ObstacleKind
+    + X : double
+    + Length : int
+    + Speed : double
+    + LandsAt : long
+    + Landed : bool
+    + ExpiresAt : long
+  }
+  class Player {
+    + Id : string
+    + Name : string
+    + Animal : Animal
+    + Ready : bool
+    + IsMastermind : bool
+    + Left : bool
+    + X : int
+    + Lane : int
+    + Lives : int
+    + Score : int
+    + Coins : int
+    + MaxLane : int
+    + Out : bool
+    + RespawnAt : long
+    + InvulnerableUntil : long
+    + LastHopAt : long
+    + Energy : double
+    + ReadyAt : long[]
+  }
+  class Rules <<static>> {
+    + GridWidth : int
+    + TickRate : int
+    + MaxPlayers : int
+    + MaxNameLength : int
+    + BacktrackLimit : int
+    + RespawnDelayMs : int
+    + InvulnerableMs : int
+    + PointsPerCoin : int
+    + TrainWarningMs : int
+    + BoulderFallMs : int
+    + BoulderLifeMs : int
+    + FoxLifeMs : int
+    + RainMs : int
+    + RainSlowdown : double
+    + MaxEnergy : double
+    + StartEnergy : double
+    + EnergyPerSecond : double
+    + {static} Lives(animal : Animal) : int
+    + {static} HopCooldownMs(animal : Animal) : int
+    + {static} Cost(ability : Ability) : int
+    + {static} CooldownMs(ability : Ability) : int
+    + {static} Name(ability : Ability) : string
+    + {static} WorksOn(ability : Ability, type : LaneType) : bool
+  }
+  enum Ability <<enumeration>> {
+    Car
+    Boulder
+    Fox
+    Rain
+  }
+  enum Animal <<enumeration>> {
+    Chicken
+    Rabbit
+    Duck
+    Pig
+  }
+  enum LaneType <<enumeration>> {
+    Grass
+    Road
+    Rail
+  }
+  enum ObstacleKind <<enumeration>> {
+    Car
+    Truck
+    Train
+    Fox
+    Boulder
+  }
+}
+
+package "CrossyDeathmatch.Server" <<Frame>> {
+  class Game {
+    - LanesAhead : int
+    - LanesBehind : int
+    - StartLanes : int
+    - {static} SpawnColumns : int[]
+    - _hub : IHubContext<GameHub>
+    - _state : GameState
+    - _timer : Timer
+    - _minPlayers : int
+    - _roundSeconds : int
+    - _lastTickAt : long
+    - _endsAt : long
+    - _groupType : LaneType
+    - _groupLeft : int
+    + Game(hub : IHubContext<GameHub>, config : IConfiguration)
+    - {static} Now : long
+    - Runners : IEnumerable<Player>
+    + Join(id : string, name : string)
+    + Leave(id : string)
+    + PickAnimal(id : string, animal : Animal)
+    + SetReady(id : string, ready : bool)
+    + Move(id : string, dx : int, dy : int)
+    + UseAbility(id : string, ability : Ability, laneIndex : int, column : int)
+    - StartIfEveryoneReady()
+    - StartRound()
+    - Tick()
+    - Simulate(now : long, dt : double)
+    - EndRound()
+    - Hit(runner : Player, cause : string, now : long)
+    - Respawn(runner : Player, now : long)
+    - {static} Cause(kind : ObstacleKind) : string
+    - UpdateLane(lane : Lane, dt : double, now : long)
+    - AddLane(now : long)
+    - PickNextGroup(difficulty : double)
+    - {static} NewCar(lane : Lane, x : double?) : Obstacle
+    - {static} AddCoin(lane : Lane, chance : double)
+    - GetLane(index : int) : Lane?
+    - {static} IsBlocked(lane : Lane, column : int) : bool
+    ~ Any(o)
+    - {static} MinGap(index : int) : double
+    - {static} MaxGap(index : int) : double
+    - {static} Between(min : double, max : double) : double
+    - {static} Chance(probability : double) : bool
+    - Find(id : string) : Player?
+    - ConnectedIds() : List<string>
+    - SendState()
+    - Announce(text : string)
+    - SendMessage(id : string, text : string)
+  }
+  class GameHub {
+    + GameHub(game : Game)
+    + Join(name : string)
+    + PickAnimal(animal : Animal)
+    + SetReady(ready : bool)
+    + Move(dx : int, dy : int)
+    + UseAbility(ability : Ability, lane : int, column : int)
+    + OnDisconnectedAsync(exception : Exception?) : Task
+  }
+}
+
+package "CrossyDeathmatch.Client" <<Frame>> {
+  class MainForm {
+    - {static} GrassLight : Color
+    - {static} GrassDark : Color
+    - {static} Road : Color
+    - {static} Rail : Color
+    - {static} Sleeper : Color
+    - {static} Steel : Color
+    - {static} HudPanel : Color
+    - {static} Accent : Color
+    - {static} Danger : Color
+    - {static} CarColors : Color[]
+    ~ FromArgb(0, 144, 255)
+    - _serverBox : TextBox
+    - _nameBox : TextBox
+    - _connectButton : Button
+    - _animalBox : ComboBox
+    - _readyButton : Button
+    - _playerList : ListBox
+    - _infoLabel : Label
+    - _lobby : Panel
+    - _frameTimer : System.Windows.Forms.Timer
+    - _messages : List<(string Text, long At)>
+    - _hub : HubConnection?
+    - _state : GameState?
+    - _stateReceivedAt : long
+    - _myName : string
+    - _selected : Ability?
+    - _mouse : Point
+    - _cameraBottom : float
+    - _tile : float
+    - _left : float
+    + {static} Main(args : string[])
+    + MainForm(server : string, name : string)
+    - Me : Player?
+    - Connect() : Task
+    - Send(method : string, args : object?[])
+    - OnUi(action : Action)
+    - OnState(json : string)
+    - OnDisconnected()
+    - AddMessage(text : string)
+    - UpdateInfo()
+    # OnFormClosing(e : FormClosingEventArgs)
+    # ProcessCmdKey(msg : Message, keyData : Keys) : bool
+    # OnMouseMove(e : MouseEventArgs)
+    # OnMouseDown(e : MouseEventArgs)
+    - Choose(ability : Ability)
+    # OnPaint(e : PaintEventArgs)
+    - UpdateCamera(state : GameState, me : Player?)
+    - LaneTop(lane : float) : float
+    - Cell(x : double, lane : float, width : double) : RectangleF
+    - ScreenToWorld(point : Point) : (int Lane, int Column)
+    - DrawLane(g : Graphics, lane : Lane, elapsed : double, now : long)
+    - DrawObstacle(g : Graphics, obstacle : Obstacle, area : RectangleF, carColor : Color, now : long)
+    - DrawRunner(g : Graphics, runner : Player, now : long)
+    - {static} DrawAnimal(g : Graphics, animal : Animal, cell : RectangleF, alpha : int)
+    - DrawNameTag(g : Graphics, runner : Player, isMe : bool)
+    - DrawTargeting(g : Graphics, state : GameState)
+    - DrawRain(g : Graphics)
+    - DrawHud(g : Graphics, state : GameState, me : Player?, now : long)
+    - AbilityButton(ability : Ability) : RectangleF
+    - DrawAbilityBar(g : Graphics, me : Player, now : long)
+    - {static} Fill(g : Graphics, color : Color, area : RectangleF)
+    - {static} FillEllipse(g : Graphics, color : Color, area : RectangleF)
+    - {static} DrawText(g : Graphics, text : string, size : float, color : Color, x : float, y : float, bold : bool)
+    - {static} TextCentered(g : Graphics, text : string, size : float, color : Color, area : RectangleF)
+    - {static} Caption(text : string) : Label
+    - {static} Row(controls : Control[]) : FlowLayoutPanel
+  }
+}
+
+package "External" <<Frame>> {
+  class "Form" as Form <<framework>>
+  class "Hub" as Hub <<framework>>
+}
+
+Form <|-- MainForm
+MainForm "1" *-- "1" GameState : _state
+MainForm --> "1" Player : Me
+Game ..> GameHub : _hub
+Game "1" *-- "1" GameState : _state
+Game --> "*" Player : Runners
+Hub <|-- GameHub
+GameHub --> "1" Game : game
+Lane --> "*" Obstacle : Obstacles
+GameState --> "*" Player : Players
+GameState --> "*" Lane : Lanes
+
+@enduml
