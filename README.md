@@ -53,7 +53,7 @@ Players can't join while a round is running. Someone who leaves mid-round is mar
 
 ### Rules
 
-All numbers are in [`Shared.cs`](src/CrossyDeathmatch.Shared/Shared.cs) (`Rules`).
+All numbers are in [`Rules.cs`](src/CrossyDeathmatch.Shared/Rules.cs).
 
 - **Map:** 13 columns wide and endless. Grass (safe, has trees and coins), roads (cars and trucks) and
   rails (a train comes after a flashing signal). Speed and density grow with distance.
@@ -94,7 +94,9 @@ Client (WinForms)                              Server (ASP.NET Core)
 
 | Project | File | Contents |
 |---|---|---|
-| `CrossyDeathmatch.Shared` | `Shared.cs` | `Rules`; the data classes `GameState`, `Player`, `Lane`, `Obstacle`; enums |
+| `CrossyDeathmatch.Shared` | `Rules.cs` | `Rules`: every game number |
+| | `GameState.cs`, `Player.cs`, `Lane.cs`, `Obstacle.cs` | the data classes sent over the network |
+| | `Enums.cs` | `LaneType`, `ObstacleKind`, `Animal`, `Ability` |
 | `CrossyDeathmatch.Server` | `Program.cs` | starts the web server and SignalR |
 | | `GameHub.cs` | the SignalR endpoint; passes every call to `Game` |
 | | `Game.cs` | lobby, round simulation and map generation |
