@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="2.5.1" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.omg.org/spec/UML/20161101" xmi:id="_pkg_root" name="CrossyDeathmatch">
+  <packagedElement xmi:type="uml:Package" xmi:id="_pkg_CrossyDeathmatch_Shared" name="CrossyDeathmatch.Shared">
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_GameState" name="GameState">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0001" name="Time" visibility="public" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0002" name="Playing" visibility="public" type="_dt_bool"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0003" name="TimeLeftMs" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0004" name="RainUntil" visibility="public" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0005" name="Result" visibility="public" type="_dt_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0006" name="Players" visibility="public" type="_dt_List_Player_"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0007" name="Lanes" visibility="public" type="_dt_List_Lane_"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_Lane" name="Lane">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0008" name="Index" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0009" name="Type" visibility="public" type="_enu_LaneType"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0010" name="Speed" visibility="public" type="_dt_double"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0011" name="Trees" visibility="public" type="_dt_List_int_"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0012" name="Coins" visibility="public" type="_dt_List_int_"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0013" name="Obstacles" visibility="public" type="_dt_List_Obstacle_"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0014" name="NextTrainAt" visibility="public" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0015" name="SpawnTimer" visibility="public" type="_dt_double"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_Obstacle" name="Obstacle">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0016" name="Kind" visibility="public" type="_enu_ObstacleKind"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0017" name="X" visibility="public" type="_dt_double"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0018" name="Length" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0019" name="Speed" visibility="public" type="_dt_double"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0020" name="LandsAt" visibility="public" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0021" name="Landed" visibility="public" type="_dt_bool"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0022" name="ExpiresAt" visibility="public" type="_dt_long"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_Player" name="Player">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0023" name="Id" visibility="public" type="_dt_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0024" name="Name" visibility="public" type="_dt_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0025" name="Animal" visibility="public" type="_enu_Animal"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0026" name="Ready" visibility="public" type="_dt_bool"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0027" name="IsMastermind" visibility="public" type="_dt_bool"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0028" name="Left" visibility="public" type="_dt_bool"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0029" name="X" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0030" name="Lane" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0031" name="Lives" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0032" name="Score" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0033" name="Coins" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0034" name="MaxLane" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0035" name="Out" visibility="public" type="_dt_bool"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0036" name="RespawnAt" visibility="public" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0037" name="InvulnerableUntil" visibility="public" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0038" name="LastHopAt" visibility="public" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0039" name="Energy" visibility="public" type="_dt_double"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0040" name="ReadyAt" visibility="public" type="_dt_long__"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_Rules" name="Rules">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_cmt0041" annotatedElement="_cla_Rules">
+        <body>&lt;&lt;static&gt;&gt;</body>
+      </ownedComment>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0042" name="GridWidth" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0043" name="TickRate" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0044" name="MaxPlayers" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0045" name="MaxNameLength" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0046" name="BacktrackLimit" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0047" name="RespawnDelayMs" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0048" name="InvulnerableMs" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0049" name="PointsPerCoin" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0050" name="TrainWarningMs" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0051" name="BoulderFallMs" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0052" name="BoulderLifeMs" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0053" name="FoxLifeMs" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0054" name="RainMs" visibility="public" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0055" name="RainSlowdown" visibility="public" type="_dt_double"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0056" name="MaxEnergy" visibility="public" type="_dt_double"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0057" name="StartEnergy" visibility="public" type="_dt_double"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0058" name="EnergyPerSecond" visibility="public" type="_dt_double"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0059" name="Lives" visibility="public" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0060" name="animal" direction="in" type="_enu_Animal"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0061" name="return" direction="return" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0062" name="HopCooldownMs" visibility="public" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0063" name="animal" direction="in" type="_enu_Animal"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0064" name="return" direction="return" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0065" name="Cost" visibility="public" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0066" name="ability" direction="in" type="_enu_Ability"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0067" name="return" direction="return" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0068" name="CooldownMs" visibility="public" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0069" name="ability" direction="in" type="_enu_Ability"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0070" name="return" direction="return" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0071" name="Name" visibility="public" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0072" name="ability" direction="in" type="_enu_Ability"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0073" name="return" direction="return" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0074" name="WorksOn" visibility="public" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0075" name="ability" direction="in" type="_enu_Ability"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0076" name="type" direction="in" type="_enu_LaneType"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0077" name="return" direction="return" type="_dt_bool"/>
+      </ownedOperation>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enu_Ability" name="Ability">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_cmt0078" annotatedElement="_enu_Ability">
+        <body>&lt;&lt;enumeration&gt;&gt;</body>
+      </ownedComment>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0079" name="Car"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0080" name="Boulder"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0081" name="Fox"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0082" name="Rain"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enu_Animal" name="Animal">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_cmt0083" annotatedElement="_enu_Animal">
+        <body>&lt;&lt;enumeration&gt;&gt;</body>
+      </ownedComment>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0084" name="Chicken"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0085" name="Rabbit"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0086" name="Duck"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0087" name="Pig"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enu_LaneType" name="LaneType">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_cmt0088" annotatedElement="_enu_LaneType">
+        <body>&lt;&lt;enumeration&gt;&gt;</body>
+      </ownedComment>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0089" name="Grass"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0090" name="Road"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0091" name="Rail"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enu_ObstacleKind" name="ObstacleKind">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_cmt0092" annotatedElement="_enu_ObstacleKind">
+        <body>&lt;&lt;enumeration&gt;&gt;</body>
+      </ownedComment>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0093" name="Car"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0094" name="Truck"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0095" name="Train"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0096" name="Fox"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit0097" name="Boulder"/>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_pkg_CrossyDeathmatch_Server" name="CrossyDeathmatch.Server">
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_Game" name="Game">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0098" name="LanesAhead" visibility="private" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0099" name="LanesBehind" visibility="private" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0100" name="StartLanes" visibility="private" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0101" name="SpawnColumns" visibility="private" isStatic="true" type="_dt_int__"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0102" name="_hub" visibility="private" type="_dt_IHubContext_GameHub_"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0103" name="_state" visibility="private" type="_cla_GameState"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0104" name="_timer" visibility="private" type="_dt_Timer"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0105" name="_minPlayers" visibility="private" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0106" name="_roundSeconds" visibility="private" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0107" name="_lastTickAt" visibility="private" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0108" name="_endsAt" visibility="private" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0109" name="_groupType" visibility="private" type="_enu_LaneType"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0110" name="_groupLeft" visibility="private" type="_dt_int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0111" name="Now" visibility="private" isStatic="true" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0112" name="Runners" visibility="private" type="_dt_IEnumerable_Player_"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0113" name="Game" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0114" name="hub" direction="in" type="_dt_IHubContext_GameHub_"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0115" name="config" direction="in" type="_dt_IConfiguration"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0116" name="Join" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0117" name="id" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0118" name="name" direction="in" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0119" name="Leave" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0120" name="id" direction="in" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0121" name="PickAnimal" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0122" name="id" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0123" name="animal" direction="in" type="_enu_Animal"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0124" name="SetReady" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0125" name="id" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0126" name="ready" direction="in" type="_dt_bool"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0127" name="Move" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0128" name="id" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0129" name="dx" direction="in" type="_dt_int"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0130" name="dy" direction="in" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0131" name="UseAbility" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0132" name="id" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0133" name="ability" direction="in" type="_enu_Ability"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0134" name="laneIndex" direction="in" type="_dt_int"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0135" name="column" direction="in" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0136" name="StartIfEveryoneReady" visibility="private"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0137" name="StartRound" visibility="private"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0138" name="Tick" visibility="private"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0139" name="Simulate" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0140" name="now" direction="in" type="_dt_long"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0141" name="dt" direction="in" type="_dt_double"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0142" name="EndRound" visibility="private"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0143" name="Hit" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0144" name="runner" direction="in" type="_cla_Player"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0145" name="cause" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0146" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0147" name="Respawn" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0148" name="runner" direction="in" type="_cla_Player"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0149" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0150" name="Cause" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0151" name="kind" direction="in" type="_enu_ObstacleKind"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0152" name="return" direction="return" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0153" name="UpdateLane" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0154" name="lane" direction="in" type="_cla_Lane"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0155" name="dt" direction="in" type="_dt_double"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0156" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0157" name="AddLane" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0158" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0159" name="PickNextGroup" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0160" name="difficulty" direction="in" type="_dt_double"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0161" name="NewCar" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0162" name="lane" direction="in" type="_cla_Lane"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0163" name="x" direction="in" type="_dt_double"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0164" name="return" direction="return" type="_cla_Obstacle"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0165" name="AddCoin" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0166" name="lane" direction="in" type="_cla_Lane"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0167" name="chance" direction="in" type="_dt_double"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0168" name="GetLane" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0169" name="index" direction="in" type="_dt_int"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0170" name="return" direction="return" type="_cla_Lane"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0171" name="IsBlocked" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0172" name="lane" direction="in" type="_cla_Lane"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0173" name="column" direction="in" type="_dt_int"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0174" name="return" direction="return" type="_dt_bool"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0175" name="Any" visibility="package">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0176" name="o" direction="in"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0177" name="MinGap" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0178" name="index" direction="in" type="_dt_int"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0179" name="return" direction="return" type="_dt_double"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0180" name="MaxGap" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0181" name="index" direction="in" type="_dt_int"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0182" name="return" direction="return" type="_dt_double"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0183" name="Between" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0184" name="min" direction="in" type="_dt_double"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0185" name="max" direction="in" type="_dt_double"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0186" name="return" direction="return" type="_dt_double"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0187" name="Chance" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0188" name="probability" direction="in" type="_dt_double"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0189" name="return" direction="return" type="_dt_bool"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0190" name="Find" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0191" name="id" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0192" name="return" direction="return" type="_cla_Player"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0193" name="ConnectedIds" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0194" name="return" direction="return" type="_dt_List_string_"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0195" name="SendState" visibility="private"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0196" name="Announce" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0197" name="text" direction="in" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0198" name="SendMessage" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0199" name="id" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0200" name="text" direction="in" type="_dt_string"/>
+      </ownedOperation>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_GameHub" name="GameHub">
+      <generalization xmi:type="uml:Generalization" xmi:id="_gen0201" general="_cla_Hub"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0202" name="GameHub" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0203" name="game" direction="in" type="_cla_Game"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0204" name="Join" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0205" name="name" direction="in" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0206" name="PickAnimal" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0207" name="animal" direction="in" type="_enu_Animal"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0208" name="SetReady" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0209" name="ready" direction="in" type="_dt_bool"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0210" name="Move" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0211" name="dx" direction="in" type="_dt_int"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0212" name="dy" direction="in" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0213" name="UseAbility" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0214" name="ability" direction="in" type="_enu_Ability"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0215" name="lane" direction="in" type="_dt_int"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0216" name="column" direction="in" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0217" name="OnDisconnectedAsync" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0218" name="exception" direction="in" type="_dt_Exception"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0219" name="return" direction="return" type="_dt_Task"/>
+      </ownedOperation>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_pkg_CrossyDeathmatch_Client" name="CrossyDeathmatch.Client">
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_MainForm" name="MainForm">
+      <generalization xmi:type="uml:Generalization" xmi:id="_gen0220" general="_cla_Form"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0221" name="GrassLight" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0222" name="GrassDark" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0223" name="Road" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0224" name="Rail" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0225" name="Sleeper" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0226" name="Steel" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0227" name="HudPanel" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0228" name="Accent" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0229" name="Danger" visibility="private" isStatic="true" type="_dt_Color"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0230" name="CarColors" visibility="private" isStatic="true" type="_dt_Color__"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0231" name="_serverBox" visibility="private" type="_dt_TextBox"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0232" name="_nameBox" visibility="private" type="_dt_TextBox"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0233" name="_connectButton" visibility="private" type="_dt_Button"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0234" name="_animalBox" visibility="private" type="_dt_ComboBox"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0235" name="_readyButton" visibility="private" type="_dt_Button"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0236" name="_playerList" visibility="private" type="_dt_ListBox"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0237" name="_infoLabel" visibility="private" type="_dt_Label"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0238" name="_lobby" visibility="private" type="_dt_Panel"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0239" name="_frameTimer" visibility="private" type="_dt_System_Windows_Forms_Timer"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0240" name="_messages" visibility="private" type="_dt_List__string_Text__long_At__"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0241" name="_hub" visibility="private" type="_dt_HubConnection"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0242" name="_state" visibility="private" type="_cla_GameState"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0243" name="_stateReceivedAt" visibility="private" type="_dt_long"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0244" name="_myName" visibility="private" type="_dt_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0245" name="_selected" visibility="private" type="_enu_Ability"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0246" name="_mouse" visibility="private" type="_dt_Point"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0247" name="_cameraBottom" visibility="private" type="_dt_float"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0248" name="_tile" visibility="private" type="_dt_float"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0249" name="_left" visibility="private" type="_dt_float"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_prp0250" name="Me" visibility="private" type="_cla_Player"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0251" name="FromArgb" visibility="package">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0252" name="0" direction="in"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0253" name="144" direction="in"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0254" name="255" direction="in"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0255" name="Main" visibility="public" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0256" name="args" direction="in" type="_dt_string__"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0257" name="MainForm" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0258" name="server" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0259" name="name" direction="in" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0260" name="Connect" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0261" name="return" direction="return" type="_dt_Task"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0262" name="Send" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0263" name="method" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0264" name="args" direction="in" type="_dt_object___"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0265" name="OnUi" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0266" name="action" direction="in" type="_dt_Action"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0267" name="OnState" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0268" name="json" direction="in" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0269" name="OnDisconnected" visibility="private"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0270" name="AddMessage" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0271" name="text" direction="in" type="_dt_string"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0272" name="UpdateInfo" visibility="private"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0273" name="OnFormClosing" visibility="protected">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0274" name="e" direction="in" type="_dt_FormClosingEventArgs"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0275" name="ProcessCmdKey" visibility="protected">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0276" name="msg" direction="in" type="_dt_Message"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0277" name="keyData" direction="in" type="_dt_Keys"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0278" name="return" direction="return" type="_dt_bool"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0279" name="OnMouseMove" visibility="protected">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0280" name="e" direction="in" type="_dt_MouseEventArgs"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0281" name="OnMouseDown" visibility="protected">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0282" name="e" direction="in" type="_dt_MouseEventArgs"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0283" name="Choose" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0284" name="ability" direction="in" type="_enu_Ability"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0285" name="OnPaint" visibility="protected">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0286" name="e" direction="in" type="_dt_PaintEventArgs"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0287" name="UpdateCamera" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0288" name="state" direction="in" type="_cla_GameState"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0289" name="me" direction="in" type="_cla_Player"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0290" name="LaneTop" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0291" name="lane" direction="in" type="_dt_float"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0292" name="return" direction="return" type="_dt_float"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0293" name="Cell" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0294" name="x" direction="in" type="_dt_double"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0295" name="lane" direction="in" type="_dt_float"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0296" name="width" direction="in" type="_dt_double"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0297" name="return" direction="return" type="_dt_RectangleF"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0298" name="ScreenToWorld" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0299" name="point" direction="in" type="_dt_Point"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0300" name="return" direction="return" type="_dt__int_Lane__int_Column_"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0301" name="DrawLane" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0302" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0303" name="lane" direction="in" type="_cla_Lane"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0304" name="elapsed" direction="in" type="_dt_double"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0305" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0306" name="DrawObstacle" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0307" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0308" name="obstacle" direction="in" type="_cla_Obstacle"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0309" name="area" direction="in" type="_dt_RectangleF"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0310" name="carColor" direction="in" type="_dt_Color"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0311" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0312" name="DrawRunner" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0313" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0314" name="runner" direction="in" type="_cla_Player"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0315" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0316" name="DrawAnimal" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0317" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0318" name="animal" direction="in" type="_enu_Animal"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0319" name="cell" direction="in" type="_dt_RectangleF"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0320" name="alpha" direction="in" type="_dt_int"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0321" name="DrawNameTag" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0322" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0323" name="runner" direction="in" type="_cla_Player"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0324" name="isMe" direction="in" type="_dt_bool"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0325" name="DrawTargeting" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0326" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0327" name="state" direction="in" type="_cla_GameState"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0328" name="DrawRain" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0329" name="g" direction="in" type="_dt_Graphics"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0330" name="DrawHud" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0331" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0332" name="state" direction="in" type="_cla_GameState"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0333" name="me" direction="in" type="_cla_Player"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0334" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0335" name="AbilityButton" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0336" name="ability" direction="in" type="_enu_Ability"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0337" name="return" direction="return" type="_dt_RectangleF"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0338" name="DrawAbilityBar" visibility="private">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0339" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0340" name="me" direction="in" type="_cla_Player"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0341" name="now" direction="in" type="_dt_long"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0342" name="Fill" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0343" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0344" name="color" direction="in" type="_dt_Color"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0345" name="area" direction="in" type="_dt_RectangleF"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0346" name="FillEllipse" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0347" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0348" name="color" direction="in" type="_dt_Color"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0349" name="area" direction="in" type="_dt_RectangleF"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0350" name="DrawText" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0351" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0352" name="text" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0353" name="size" direction="in" type="_dt_float"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0354" name="color" direction="in" type="_dt_Color"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0355" name="x" direction="in" type="_dt_float"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0356" name="y" direction="in" type="_dt_float"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0357" name="bold" direction="in" type="_dt_bool"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0358" name="TextCentered" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0359" name="g" direction="in" type="_dt_Graphics"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0360" name="text" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0361" name="size" direction="in" type="_dt_float"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0362" name="color" direction="in" type="_dt_Color"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0363" name="area" direction="in" type="_dt_RectangleF"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0364" name="Caption" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0365" name="text" direction="in" type="_dt_string"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0366" name="return" direction="return" type="_dt_Label"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_opr0367" name="Row" visibility="private" isStatic="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0368" name="controls" direction="in" type="_dt_Control__"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_par0369" name="return" direction="return" type="_dt_FlowLayoutPanel"/>
+      </ownedOperation>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_pkg_External" name="External">
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_Form" name="Form">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_cmt0370" annotatedElement="_cla_Form">
+        <body>&lt;&lt;framework&gt;&gt;</body>
+      </ownedComment>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_cla_Hub" name="Hub">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_cmt0371" annotatedElement="_cla_Hub">
+        <body>&lt;&lt;framework&gt;&gt;</body>
+      </ownedComment>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_pkg_ExternalTypes" name="ExternalTypes">
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_long" name="long"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_bool" name="bool"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_int" name="int"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_string" name="string"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_List_Player_" name="List&lt;Player&gt;"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_List_Lane_" name="List&lt;Lane&gt;"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_double" name="double"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_List_int_" name="List&lt;int&gt;"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_List_Obstacle_" name="List&lt;Obstacle&gt;"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_long__" name="long[]"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_int__" name="int[]"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_IHubContext_GameHub_" name="IHubContext&lt;GameHub&gt;"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Timer" name="Timer"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_IEnumerable_Player_" name="IEnumerable&lt;Player&gt;"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_IConfiguration" name="IConfiguration"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_List_string_" name="List&lt;string&gt;"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Exception" name="Exception"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Task" name="Task"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Color" name="Color"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Color__" name="Color[]"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_TextBox" name="TextBox"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Button" name="Button"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_ComboBox" name="ComboBox"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_ListBox" name="ListBox"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Label" name="Label"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Panel" name="Panel"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_System_Windows_Forms_Timer" name="System.Windows.Forms.Timer"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_List__string_Text__long_At__" name="List&lt;(string Text, long At)&gt;"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_HubConnection" name="HubConnection"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Point" name="Point"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_float" name="float"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_string__" name="string[]"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_object___" name="object?[]"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Action" name="Action"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_FormClosingEventArgs" name="FormClosingEventArgs"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Message" name="Message"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Keys" name="Keys"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_MouseEventArgs" name="MouseEventArgs"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_PaintEventArgs" name="PaintEventArgs"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_RectangleF" name="RectangleF"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt__int_Lane__int_Column_" name="(int Lane, int Column)"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Graphics" name="Graphics"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_Control__" name="Control[]"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dt_FlowLayoutPanel" name="FlowLayoutPanel"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ass0372" memberEnd="_ass0372_a _ass0372_b" navigableOwnedEnd="_ass0372_b">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0372_a" type="_cla_MainForm" association="_ass0372">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0372_a_lo" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0372_a_hi" value="1"/>
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0372_b" name="_state" type="_cla_GameState" aggregation="composite" association="_ass0372">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0372_b_lo" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0372_b_hi" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ass0373" memberEnd="_ass0373_a _ass0373_b" navigableOwnedEnd="_ass0373_b">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0373_a" type="_cla_MainForm" association="_ass0373">
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0373_b" name="Me" type="_cla_Player" association="_ass0373">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0373_b_lo" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0373_b_hi" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_dep0374" name="_hub" client="_cla_Game" supplier="_cla_GameHub"/>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ass0375" memberEnd="_ass0375_a _ass0375_b" navigableOwnedEnd="_ass0375_b">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0375_a" type="_cla_Game" association="_ass0375">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0375_a_lo" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0375_a_hi" value="1"/>
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0375_b" name="_state" type="_cla_GameState" aggregation="composite" association="_ass0375">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0375_b_lo" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0375_b_hi" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ass0376" memberEnd="_ass0376_a _ass0376_b" navigableOwnedEnd="_ass0376_b">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0376_a" type="_cla_Game" association="_ass0376">
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0376_b" name="Runners" type="_cla_Player" association="_ass0376">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0376_b_lo" value="0"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0376_b_hi" value="-1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ass0377" memberEnd="_ass0377_a _ass0377_b" navigableOwnedEnd="_ass0377_b">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0377_a" type="_cla_GameHub" association="_ass0377">
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0377_b" name="game" type="_cla_Game" association="_ass0377">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0377_b_lo" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0377_b_hi" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ass0378" memberEnd="_ass0378_a _ass0378_b" navigableOwnedEnd="_ass0378_b">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0378_a" type="_cla_Lane" association="_ass0378">
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0378_b" name="Obstacles" type="_cla_Obstacle" association="_ass0378">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0378_b_lo" value="0"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0378_b_hi" value="-1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ass0379" memberEnd="_ass0379_a _ass0379_b" navigableOwnedEnd="_ass0379_b">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0379_a" type="_cla_GameState" association="_ass0379">
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0379_b" name="Players" type="_cla_Player" association="_ass0379">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0379_b_lo" value="0"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0379_b_hi" value="-1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ass0380" memberEnd="_ass0380_a _ass0380_b" navigableOwnedEnd="_ass0380_b">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0380_a" type="_cla_GameState" association="_ass0380">
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_ass0380_b" name="Lanes" type="_cla_Lane" association="_ass0380">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ass0380_b_lo" value="0"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ass0380_b_hi" value="-1"/>
+    </ownedEnd>
+  </packagedElement>
+</uml:Model>
