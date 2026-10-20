@@ -26,6 +26,14 @@ public class Game
     private LaneType _groupType;
     private int _groupLeft;
 
+    private static readonly Dictionary<Ability, IAbilityStrategy> Abilities = new()
+    {
+        [Ability.Car] = new CarAbility(),
+        [Ability.Boulder] = new BoulderAbility(),
+        [Ability.Fox] = new FoxAbility(),
+        [Ability.Rain] = new RainAbility(),
+    };
+
     public Game(IHubContext<GameHub> hub, IConfiguration config)
     {
         _hub = hub;
@@ -156,42 +164,11 @@ public class Game
             string? error = null;
             if (now < mastermind.ReadyAt[(int)ability]) error = $"{name} is recharging";
             else if (mastermind.Energy < Rules.Cost(ability)) error = $"Not enough energy for {name}";
-            else if (ability != Ability.Rain && (lane == null || !Rules.WorksOn(ability, lane.Type))) error = $"{name} can't be used there";
-            else if (ability == Ability.Boulder && (column < 0 || column >= Rules.GridWidth || IsBlocked(lane!, column))) error = "Choose a free tile";
-            else if (ability == Ability.Fox && lane!.Obstacles.Count(o => o.Kind == ObstacleKind.Fox) >= 2) error = "That lane already has enough foxes";
+            else if (!Abilities[ability].Use(_state, lane, column, now)) error = $"{name} can't be used there";
             if (error != null)
             {
                 SendMessage(id, error);
                 return;
-            }
-
-            switch (ability)
-            {
-                case Ability.Car:
-                    lane!.Obstacles.Add(NewCar(lane));
-                    break;
-                case Ability.Boulder:
-                    lane!.Obstacles.Add(new Obstacle
-                    {
-                        Kind = ObstacleKind.Boulder,
-                        X = column,
-                        LandsAt = now + Rules.BoulderFallMs,
-                        ExpiresAt = now + Rules.BoulderFallMs + Rules.BoulderLifeMs,
-                    });
-                    break;
-                case Ability.Fox:
-                    var fromLeft = Chance(0.5);
-                    lane!.Obstacles.Add(new Obstacle
-                    {
-                        Kind = ObstacleKind.Fox,
-                        X = fromLeft ? 0 : Rules.GridWidth - 1,
-                        Speed = fromLeft ? 2.2 : -2.2,
-                        ExpiresAt = now + Rules.FoxLifeMs,
-                    });
-                    break;
-                case Ability.Rain:
-                    _state.RainUntil = now + Rules.RainMs;
-                    break;
             }
 
             mastermind.Energy -= Rules.Cost(ability);
@@ -526,7 +503,7 @@ public class Game
     }
 
     /// <summary>A car or truck for a road. Without an X it enters from the lane's upstream edge.</summary>
-    private static Obstacle NewCar(Lane lane, double? x = null)
+    internal static Obstacle NewCar(Lane lane, double? x = null)
     {
         var truck = Chance(0.25);
         var length = truck ? 2 : 1;
@@ -552,7 +529,7 @@ public class Game
         return position >= 0 && position < _state.Lanes.Count ? _state.Lanes[position] : null;
     }
 
-    private static bool IsBlocked(Lane lane, int column) =>
+    internal static bool IsBlocked(Lane lane, int column) =>
         lane.Trees.Contains(column) ||
         lane.Obstacles.Any(o => o.Kind == ObstacleKind.Boulder && o.Landed && (int)o.X == column);
 
