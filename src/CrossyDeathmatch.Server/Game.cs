@@ -18,6 +18,7 @@ public class Game
 
     private readonly IHubContext<GameHub> _hub;
     private readonly GameState _state = new();
+    private readonly Dictionary<string, IGameObserver> _observers = new();
     private readonly Timer _timer;
     private readonly int _minPlayers;
     private readonly int _roundSeconds;
@@ -39,6 +40,7 @@ public class Game
         _hub = hub;
         _minPlayers = Math.Clamp(config.GetValue("min-players", Rules.MaxPlayers), 1, Rules.MaxPlayers);
         _roundSeconds = Math.Max(10, config.GetValue("round-seconds", 180));
+        Attach("console", new ConsoleObserver());
         _timer = new Timer(_ => Tick(), null, 0, 1000 / Rules.TickRate);
         Console.WriteLine($"  Min players to start: {_minPlayers}   Round length: {_roundSeconds}s");
     }
@@ -69,6 +71,7 @@ public class Game
 
             var animal = Enum.GetValues<Animal>().FirstOrDefault(a => _state.Players.All(p => p.Animal != a));
             _state.Players.Add(new Player { Id = id, Name = name, Animal = animal });
+            Attach(id, new ClientObserver(_hub.Clients.Client(id)));
             Announce($"{name} joined");
             SendState();
         }
@@ -81,6 +84,7 @@ public class Game
             var player = Find(id);
             if (player == null) return;
 
+            Detach(id);
             if (_state.Playing)
             {
                 // Kept until the round ends so the scoreboard still shows them.
@@ -543,19 +547,37 @@ public class Game
 
     private Player? Find(string id) => _state.Players.FirstOrDefault(p => p.Id == id);
 
-    // ---- sending ----
+    // ---- sending (Observer: Game is the subject) ----
 
-    private List<string> ConnectedIds() => _state.Players.Where(p => !p.Left).Select(p => p.Id).ToList();
+    private void Attach(string id, IGameObserver observer)
+    {
+        _observers[id] = observer;
+    }
+
+    private void Detach(string id)
+    {
+        _observers.Remove(id);
+    }
 
     /// <summary>Serialised while the lock is held, so the game loop can't change the state halfway through.</summary>
     private void SendState()
     {
         _state.Time = Now;
         var json = JsonSerializer.Serialize(_state);
-        _ = _hub.Clients.Clients(ConnectedIds()).SendAsync("State", json);
+        foreach (var observer in _observers.Values)
+        {
+            observer.OnState(json);
+        }
     }
 
-    private void Announce(string text) => _ = _hub.Clients.Clients(ConnectedIds()).SendAsync("Message", text);
+    private void Announce(string text)
+    {
+        foreach (var observer in _observers.Values)
+        {
+            observer.OnMessage(text);
+        }
+    }
 
+    /// <summary>Only for errors, which can come before the player has joined and has an observer.</summary>
     private void SendMessage(string id, string text) => _ = _hub.Clients.Client(id).SendAsync("Message", text);
 }
