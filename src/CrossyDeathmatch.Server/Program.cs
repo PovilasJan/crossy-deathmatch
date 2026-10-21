@@ -17,14 +17,14 @@ app.MapHub<GameHub>("/game");
 // Create the game now so its timer is running before anyone connects.
 app.Services.GetRequiredService<Game>();
 
-Console.WriteLine($"Crossy Deathmatch server on port {port}");
-Console.WriteLine($"  This machine:  http://localhost:{port}");
+ServerLog.Instance.Info($"Crossy Deathmatch server on port {port}");
+ServerLog.Instance.Info($"  This machine:  http://localhost:{port}");
 foreach (var address in NetworkInterface.GetAllNetworkInterfaces()
              .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
              .SelectMany(n => n.GetIPProperties().UnicastAddresses)
              .Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork))
 {
-    Console.WriteLine($"  Same network:  http://{address.Address}:{port}");
+    ServerLog.Instance.Info($"  Same network:  http://{address.Address}:{port}");
 }
 
 app.Run();

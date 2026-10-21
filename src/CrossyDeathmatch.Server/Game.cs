@@ -49,7 +49,7 @@ public class Game
         _roundSeconds = Math.Max(10, config.GetValue("round-seconds", 180));
         Attach("console", new ConsoleObserver());
         _timer = new Timer(_ => Tick(), null, 0, 1000 / Rules.TickRate);
-        Console.WriteLine($"  Min players to start: {_minPlayers}   Round length: {_roundSeconds}s");
+        ServerLog.Instance.Info($"Min players to start: {_minPlayers}   Round length: {_roundSeconds}s");
     }
 
     private static long Now => Environment.TickCount64;
@@ -247,7 +247,7 @@ public class Game
             catch (Exception ex)
             {
                 // An exception on a timer thread would kill the server; log it and carry on instead.
-                Console.WriteLine(ex);
+                ServerLog.Instance.Error(ex);
             }
             SendState();
         }
