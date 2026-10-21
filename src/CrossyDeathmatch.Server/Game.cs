@@ -13,7 +13,9 @@ public class Game
 {
     private const int LanesAhead = 20;
     private const int LanesBehind = 8;
-    private const int StartLanes = 4;
+    internal const int StartLanes = 5;
+    internal const double MinCarGap = 2;
+    internal const double MaxCarGap = 5;
     private static readonly int[] SpawnColumns = [6, 3, 9, 1];
 
     private readonly IHubContext<GameHub> _hub;
@@ -24,8 +26,6 @@ public class Game
     private readonly int _roundSeconds;
     private long _lastTickAt = Environment.TickCount64;
     private long _endsAt;
-    private LaneType _groupType;
-    private int _groupLeft;
 
     private static readonly Dictionary<Ability, IAbilityStrategy> Abilities = new()
     {
@@ -33,6 +33,13 @@ public class Game
         [Ability.Boulder] = new BoulderAbility(),
         [Ability.Fox] = new FoxAbility(),
         [Ability.Rain] = new RainAbility(),
+    };
+
+    private static readonly Dictionary<LaneType, LaneBuilder> Builders = new()
+    {
+        [LaneType.Grass] = new GrassLaneBuilder(),
+        [LaneType.Road] = new RoadLaneBuilder(),
+        [LaneType.Rail] = new RailLaneBuilder(),
     };
 
     public Game(IHubContext<GameHub> hub, IConfiguration config)
@@ -214,8 +221,6 @@ public class Game
         }
 
         _state.Lanes.Clear();
-        _groupType = LaneType.Grass;
-        _groupLeft = 0;
         while (_state.Lanes.Count <= LanesAhead) AddLane(now);
 
         _state.Playing = true;
@@ -404,16 +409,15 @@ public class Game
             if (lane.SpawnTimer > 0) return;
 
             var car = NewCar(lane);
-            var gap = MinGap(lane.Index);
             var entryBusy = lane.Obstacles.Any(o => o.Kind is ObstacleKind.Car or ObstacleKind.Truck &&
-                                                    o.X < car.X + car.Length + gap && o.X + o.Length > car.X - gap);
+                                                    o.X < car.X + car.Length + MinCarGap && o.X + o.Length > car.X - MinCarGap);
             if (entryBusy)
             {
                 lane.SpawnTimer = 0.15;
                 return;
             }
             lane.Obstacles.Add(car);
-            lane.SpawnTimer = (car.Length + Between(MinGap(lane.Index), MaxGap(lane.Index))) / Math.Abs(lane.Speed);
+            lane.SpawnTimer = (car.Length + Between(MinCarGap, MaxCarGap)) / Math.Abs(lane.Speed);
         }
         else if (lane.Type == LaneType.Rail && now >= lane.NextTrainAt)
         {
@@ -428,82 +432,21 @@ public class Game
         }
     }
 
-    /// <summary>Adds the next lane on top of the map. Roads and rails come in groups, with grass in between.</summary>
+    /// <summary>
+    /// Adds the next lane on top of the map: the first lanes are grass, after that a random type.
+    /// Builder: this is the director, the lane builders do the steps that differ per lane type.
+    /// </summary>
     private void AddLane(long now)
     {
-        var previous = _state.Lanes.Count > 0 ? _state.Lanes[^1] : null;
-        var index = previous == null ? 0 : previous.Index + 1;
-        var difficulty = Math.Min(1.0, index / 150.0);
-        var lane = new Lane { Index = index };
+        var index = _state.Lanes.Count > 0 ? _state.Lanes[^1].Index + 1 : 0;
+        var type = index < StartLanes ? LaneType.Grass : (LaneType)Random.Shared.Next(3); // 0 Grass, 1 Road, 2 Rail
 
-        if (index >= StartLanes)
-        {
-            if (_groupLeft <= 0) PickNextGroup(difficulty);
-            _groupLeft--;
-            lane.Type = _groupType;
-        }
-
-        var heading = Chance(0.5) ? 1 : -1;
-        switch (lane.Type)
-        {
-            case LaneType.Grass when index < StartLanes:
-                // Runners spawn here, so only the edges may have trees.
-                if (Chance(0.5)) lane.Trees.Add(0);
-                if (Chance(0.5)) lane.Trees.Add(Rules.GridWidth - 1);
-                break;
-
-            case LaneType.Grass:
-                // Keep 3 columns clear that were also clear on the lane below, so trees never wall the way.
-                var open = Enumerable.Range(0, Rules.GridWidth)
-                    .Where(c => previous == null || !previous.Trees.Contains(c))
-                    .OrderBy(_ => Random.Shared.Next())
-                    .Take(3)
-                    .ToList();
-                for (var column = 0; column < Rules.GridWidth; column++)
-                {
-                    if (!open.Contains(column) && Chance(0.12 + difficulty * 0.12)) lane.Trees.Add(column);
-                }
-                AddCoin(lane, 0.3);
-                break;
-
-            case LaneType.Road:
-                lane.Speed = heading * (Between(1.6, 2.8) + difficulty * 2.5);
-                // Fill the road with cars so it doesn't start empty.
-                for (var x = -2 + Between(0, MaxGap(index)); x < Rules.GridWidth + 1;)
-                {
-                    var car = NewCar(lane, x);
-                    lane.Obstacles.Add(car);
-                    x += car.Length + Between(MinGap(index), MaxGap(index));
-                }
-                AddCoin(lane, 0.1);
-                break;
-
-            case LaneType.Rail:
-                lane.Speed = heading * 24;
-                lane.NextTrainAt = now + (long)Between(3000, 8000);
-                break;
-        }
-
-        _state.Lanes.Add(lane);
-    }
-
-    private void PickNextGroup(double difficulty)
-    {
-        if (_groupType != LaneType.Grass)
-        {
-            _groupType = LaneType.Grass;
-            _groupLeft = Chance(0.35 - difficulty * 0.2) ? 2 : 1;
-        }
-        else if (Chance(0.7))
-        {
-            _groupType = LaneType.Road;
-            _groupLeft = Random.Shared.Next(1, 3 + (int)Math.Round(difficulty * 3));
-        }
-        else
-        {
-            _groupType = LaneType.Rail;
-            _groupLeft = difficulty > 0.4 ? Random.Shared.Next(1, 3) : 1;
-        }
+        var builder = Builders[type];
+        builder.Reset(index, type);
+        builder.BuildTrees();
+        builder.BuildTraffic(now);
+        builder.BuildCoins();
+        _state.Lanes.Add(builder.GetLane());
     }
 
     /// <summary>A car or truck for a road. Without an X it enters from the lane's upstream edge.</summary>
@@ -520,7 +463,7 @@ public class Game
         };
     }
 
-    private static void AddCoin(Lane lane, double chance)
+    internal static void AddCoin(Lane lane, double chance)
     {
         var free = Enumerable.Range(0, Rules.GridWidth).Where(c => !lane.Trees.Contains(c)).ToList();
         if (free.Count > 0 && Chance(chance)) lane.Coins.Add(free[Random.Shared.Next(free.Count)]);
@@ -537,13 +480,9 @@ public class Game
         lane.Trees.Contains(column) ||
         lane.Obstacles.Any(o => o.Kind == ObstacleKind.Boulder && o.Landed && (int)o.X == column);
 
-    private static double MinGap(int index) => Math.Max(1.5, 2.5 - Math.Min(1.0, index / 150.0));
+    internal static double Between(double min, double max) => min + Random.Shared.NextDouble() * (max - min);
 
-    private static double MaxGap(int index) => 6 - Math.Min(1.0, index / 150.0) * 2;
-
-    private static double Between(double min, double max) => min + Random.Shared.NextDouble() * (max - min);
-
-    private static bool Chance(double probability) => Random.Shared.NextDouble() < probability;
+    internal static bool Chance(double probability) => Random.Shared.NextDouble() < probability;
 
     private Player? Find(string id) => _state.Players.FirstOrDefault(p => p.Id == id);
 
