@@ -408,7 +408,7 @@ public class Game
             lane.SpawnTimer -= dt;
             if (lane.SpawnTimer > 0) return;
 
-            var car = NewCar(lane);
+            var car = ObstacleFactory.CreateVehicle(lane, now);
             var entryBusy = lane.Obstacles.Any(o => o.Kind is ObstacleKind.Car or ObstacleKind.Truck &&
                                                     o.X < car.X + car.Length + MinCarGap && o.X + o.Length > car.X - MinCarGap);
             if (entryBusy)
@@ -421,13 +421,7 @@ public class Game
         }
         else if (lane.Type == LaneType.Rail && now >= lane.NextTrainAt)
         {
-            lane.Obstacles.Add(new Obstacle
-            {
-                Kind = ObstacleKind.Train,
-                Length = 12,
-                Speed = lane.Speed,
-                X = lane.Speed > 0 ? -12 : Rules.GridWidth,
-            });
+            lane.Obstacles.Add(ObstacleFactory.Create(ObstacleKind.Train, lane, now));
             lane.NextTrainAt = now + (long)Between(5000, 10000);
         }
     }
@@ -447,20 +441,6 @@ public class Game
         builder.BuildTraffic(now);
         builder.BuildCoins();
         _state.Lanes.Add(builder.GetLane());
-    }
-
-    /// <summary>A car or truck for a road. Without an X it enters from the lane's upstream edge.</summary>
-    internal static Obstacle NewCar(Lane lane, double? x = null)
-    {
-        var truck = Chance(0.25);
-        var length = truck ? 2 : 1;
-        return new Obstacle
-        {
-            Kind = truck ? ObstacleKind.Truck : ObstacleKind.Car,
-            Length = length,
-            Speed = lane.Speed,
-            X = x ?? (lane.Speed > 0 ? -length : Rules.GridWidth),
-        };
     }
 
     internal static void AddCoin(Lane lane, double chance)

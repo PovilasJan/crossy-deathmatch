@@ -12,7 +12,7 @@ public class CarAbility : IAbilityStrategy
     public bool Use(GameState state, Lane? lane, int column, long now)
     {
         if (lane == null || lane.Type != LaneType.Road) return false;
-        lane.Obstacles.Add(Game.NewCar(lane));
+        lane.Obstacles.Add(ObstacleFactory.CreateVehicle(lane, now));
         return true;
     }
 }
@@ -22,13 +22,7 @@ public class BoulderAbility : IAbilityStrategy
     public bool Use(GameState state, Lane? lane, int column, long now)
     {
         if (lane == null || column < 0 || column >= Rules.GridWidth || Game.IsBlocked(lane, column)) return false;
-        lane.Obstacles.Add(new Obstacle
-        {
-            Kind = ObstacleKind.Boulder,
-            X = column,
-            LandsAt = now + Rules.BoulderFallMs,
-            ExpiresAt = now + Rules.BoulderFallMs + Rules.BoulderLifeMs,
-        });
+        lane.Obstacles.Add(ObstacleFactory.Create(ObstacleKind.Boulder, lane, now, column));
         return true;
     }
 }
@@ -38,14 +32,7 @@ public class FoxAbility : IAbilityStrategy
     public bool Use(GameState state, Lane? lane, int column, long now)
     {
         if (lane == null || lane.Type != LaneType.Grass || lane.Obstacles.Count(o => o.Kind == ObstacleKind.Fox) >= 2) return false;
-        var fromLeft = Random.Shared.Next(2) == 0;
-        lane.Obstacles.Add(new Obstacle
-        {
-            Kind = ObstacleKind.Fox,
-            X = fromLeft ? 0 : Rules.GridWidth - 1,
-            Speed = fromLeft ? 2.2 : -2.2,
-            ExpiresAt = now + Rules.FoxLifeMs,
-        });
+        lane.Obstacles.Add(ObstacleFactory.Create(ObstacleKind.Fox, lane, now));
         return true;
     }
 }

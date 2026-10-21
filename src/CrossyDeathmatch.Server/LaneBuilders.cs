@@ -40,7 +40,7 @@ public class RoadLaneBuilder : LaneBuilder
         // Fill the road with cars so it doesn't start empty.
         for (var x = -2.0; x < Rules.GridWidth + 1;)
         {
-            var car = Game.NewCar(_lane, x);
+            var car = ObstacleFactory.CreateVehicle(_lane, now, x);
             _lane.Obstacles.Add(car);
             x += car.Length + Game.Between(Game.MinCarGap, Game.MaxCarGap);
         }
