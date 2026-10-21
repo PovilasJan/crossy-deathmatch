@@ -35,12 +35,19 @@ public class Game
         [Ability.Rain] = new RainAbility(),
     };
 
-    private static readonly Dictionary<LaneType, LaneBuilder> Builders = new()
+    // Abstract Factory: one factory per lane type, each making a builder and traffic that belong together.
+    private static readonly Dictionary<LaneType, ILaneFactory> LaneFactories = new()
     {
-        [LaneType.Grass] = new GrassLaneBuilder(),
-        [LaneType.Road] = new RoadLaneBuilder(),
-        [LaneType.Rail] = new RailLaneBuilder(),
+        [LaneType.Grass] = new GrassLaneFactory(),
+        [LaneType.Road] = new RoadLaneFactory(),
+        [LaneType.Rail] = new RailLaneFactory(),
     };
+
+    private static readonly Dictionary<LaneType, LaneBuilder> Builders =
+        LaneFactories.ToDictionary(f => f.Key, f => f.Value.CreateBuilder());
+
+    private static readonly Dictionary<LaneType, ILaneTraffic> Traffic =
+        LaneFactories.ToDictionary(f => f.Key, f => f.Value.CreateTraffic());
 
     public Game(IHubContext<GameHub> hub, IConfiguration config)
     {
@@ -403,27 +410,7 @@ public class Game
             (o.Kind != ObstacleKind.Fox && o.Speed > 0 && o.X > Rules.GridWidth + 1) ||
             (o.Kind != ObstacleKind.Fox && o.Speed < 0 && o.X + o.Length < -1));
 
-        if (lane.Type == LaneType.Road)
-        {
-            lane.SpawnTimer -= dt;
-            if (lane.SpawnTimer > 0) return;
-
-            var car = ObstacleFactory.CreateVehicle(lane, now);
-            var entryBusy = lane.Obstacles.Any(o => o.Kind is ObstacleKind.Car or ObstacleKind.Truck &&
-                                                    o.X < car.X + car.Length + MinCarGap && o.X + o.Length > car.X - MinCarGap);
-            if (entryBusy)
-            {
-                lane.SpawnTimer = 0.15;
-                return;
-            }
-            lane.Obstacles.Add(car);
-            lane.SpawnTimer = (car.Length + Between(MinCarGap, MaxCarGap)) / Math.Abs(lane.Speed);
-        }
-        else if (lane.Type == LaneType.Rail && now >= lane.NextTrainAt)
-        {
-            lane.Obstacles.Add(ObstacleFactory.Create(ObstacleKind.Train, lane, now));
-            lane.NextTrainAt = now + (long)Between(5000, 10000);
-        }
+        Traffic[lane.Type].Update(lane, dt, now);
     }
 
     /// <summary>

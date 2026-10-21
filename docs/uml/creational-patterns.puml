@@ -1,0 +1,179 @@
+@startuml CreationalPatterns
+title Crossy Deathmatch server: Singleton, Factory, Abstract Factory
+
+' Hand-written; the rendered version is creational-patterns.svg / .png.
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFFEF6
+  BorderColor #222222
+  ArrowColor #222222
+}
+hide circle
+
+' ---------------- Singleton ----------------
+class ServerLog <<leaf>> {
+  - {static} LazyInstance : Lazy<ServerLog> {readOnly}
+  - _lock : object {readOnly}
+  - ServerLog()
+  + {static} <<property>> Instance() : ServerLog
+  + Info(text : string) : void
+  + Error(ex : Exception) : void
+  - Write(text : string) : void
+}
+ServerLog --> "1" ServerLog : -LazyInstance
+
+interface IGameObserver <<interface>>
+class ConsoleObserver {
+  + OnState(json : string) : void
+  + OnMessage(text : string) : void
+}
+ConsoleObserver ..|> IGameObserver
+ConsoleObserver ..> ServerLog : <<use>>
+
+note right of ServerLog
+  **Singleton**
+  Singleton: ServerLog
+  private constructor; the only instance
+  is made lazily and returned by Instance
+end note
+
+' ---------------- Abstract Factory ----------------
+class Game {
+  - _state : GameState
+  - Tick() : void
+  - AddLane(now : long) : void
+  - UpdateLane(lane : Lane, dt : double, now : long) : void
+}
+Game ..> ServerLog : <<use>>
+
+interface ILaneFactory <<interface>> {
+  + {abstract} CreateBuilder() : LaneBuilder
+  + {abstract} CreateTraffic() : ILaneTraffic
+}
+class GrassLaneFactory {
+  + CreateBuilder() : LaneBuilder
+  + CreateTraffic() : ILaneTraffic
+}
+class RoadLaneFactory {
+  + CreateBuilder() : LaneBuilder
+  + CreateTraffic() : ILaneTraffic
+}
+class RailLaneFactory {
+  + CreateBuilder() : LaneBuilder
+  + CreateTraffic() : ILaneTraffic
+}
+GrassLaneFactory ..|> ILaneFactory
+RoadLaneFactory ..|> ILaneFactory
+RailLaneFactory ..|> ILaneFactory
+
+abstract class LaneBuilder {
+  # _lane : Lane
+  + Reset(index : int, type : LaneType) : void
+  + BuildTrees() : void
+  + BuildTraffic(now : long) : void
+  + BuildCoins() : void
+  + GetLane() : Lane
+}
+class GrassLaneBuilder {
+  + BuildTrees() : void
+  + BuildCoins() : void
+}
+class RoadLaneBuilder {
+  + BuildTraffic(now : long) : void
+  + BuildCoins() : void
+}
+class RailLaneBuilder {
+  + BuildTraffic(now : long) : void
+}
+GrassLaneBuilder --|> LaneBuilder
+RoadLaneBuilder --|> LaneBuilder
+RailLaneBuilder --|> LaneBuilder
+
+interface ILaneTraffic <<interface>> {
+  + {abstract} Update(lane : Lane, dt : double, now : long) : void
+}
+class GrassTraffic {
+  + Update(lane : Lane, dt : double, now : long) : void
+}
+class RoadTraffic {
+  + Update(lane : Lane, dt : double, now : long) : void
+}
+class RailTraffic {
+  + Update(lane : Lane, dt : double, now : long) : void
+}
+GrassTraffic ..|> ILaneTraffic
+RoadTraffic ..|> ILaneTraffic
+RailTraffic ..|> ILaneTraffic
+
+GrassLaneFactory ..> GrassLaneBuilder : <<create>>
+GrassLaneFactory ..> GrassTraffic : <<create>>
+RoadLaneFactory ..> RoadLaneBuilder : <<create>>
+RoadLaneFactory ..> RoadTraffic : <<create>>
+RailLaneFactory ..> RailLaneBuilder : <<create>>
+RailLaneFactory ..> RailTraffic : <<create>>
+
+Game [type : LaneType] --> "1" ILaneFactory : -LaneFactories
+Game [type : LaneType] --> "1" LaneBuilder : -Builders
+Game [type : LaneType] --> "1" ILaneTraffic : -Traffic
+
+note top of ILaneFactory
+  **Abstract Factory**
+  AbstractFactory: ILaneFactory
+  ConcreteFactory: GrassLaneFactory, RoadLaneFactory, RailLaneFactory
+  AbstractProduct: LaneBuilder, ILaneTraffic
+  ConcreteProduct: *LaneBuilder, *Traffic
+  Client: Game
+end note
+
+' ---------------- Factory ----------------
+class ObstacleFactory <<utility>> {
+  + {static} Create(kind : ObstacleKind, lane : Lane, now : long, x : double [0..1] = null) : Obstacle
+  + {static} CreateVehicle(lane : Lane, now : long, x : double [0..1] = null) : Obstacle
+}
+class Obstacle {
+  + Kind : ObstacleKind
+  + X : double
+  + Length : int = 1
+  + Speed : double
+  + LandsAt : long
+  + Landed : bool
+  + ExpiresAt : long
+}
+enum ObstacleKind <<enumeration>> {
+  Car
+  Truck
+  Train
+  Fox
+  Boulder
+}
+ObstacleFactory ..> Obstacle : <<create>>
+ObstacleFactory ..> ObstacleKind : <<use>>
+
+interface IAbilityStrategy <<interface>>
+class CarAbility
+class BoulderAbility
+class FoxAbility
+hide CarAbility members
+hide BoulderAbility members
+hide FoxAbility members
+CarAbility ..|> IAbilityStrategy
+BoulderAbility ..|> IAbilityStrategy
+FoxAbility ..|> IAbilityStrategy
+
+CarAbility ..> ObstacleFactory : <<use>>
+BoulderAbility ..> ObstacleFactory : <<use>>
+FoxAbility ..> ObstacleFactory : <<use>>
+RoadLaneBuilder ..> ObstacleFactory : <<use>>
+RoadTraffic ..> ObstacleFactory : <<use>>
+RailTraffic ..> ObstacleFactory : <<use>>
+
+note bottom of ObstacleFactory
+  **Factory**
+  Factory: ObstacleFactory   Product: Obstacle
+  Clients: CarAbility, BoulderAbility, FoxAbility,
+  RoadLaneBuilder, RoadTraffic, RailTraffic
+end note
+
+@enduml

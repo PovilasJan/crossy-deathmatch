@@ -119,20 +119,46 @@ package "CrossyDeathmatch.Shared" <<Frame>> {
 }
 
 package "CrossyDeathmatch.Server" <<Frame>> {
+  class BoulderAbility {
+    + Use(state : GameState, lane : Lane?, column : int, now : long) : bool
+  }
+  class CarAbility {
+    + Use(state : GameState, lane : Lane?, column : int, now : long) : bool
+  }
+  class ClientObserver {
+    - _client : IClientProxy
+    + ClientObserver(client : IClientProxy)
+    + OnState(json : string)
+    + OnMessage(text : string)
+  }
+  class ConsoleObserver {
+    + OnState(json : string)
+    + OnMessage(text : string)
+  }
+  class FoxAbility {
+    + Use(state : GameState, lane : Lane?, column : int, now : long) : bool
+  }
   class Game {
     - LanesAhead : int
     - LanesBehind : int
-    - StartLanes : int
+    ~ StartLanes : int
+    ~ MinCarGap : double
+    ~ MaxCarGap : double
     - {static} SpawnColumns : int[]
     - _hub : IHubContext<GameHub>
     - _state : GameState
+    - _observers : Dictionary<string, IGameObserver>
     - _timer : Timer
     - _minPlayers : int
     - _roundSeconds : int
     - _lastTickAt : long
     - _endsAt : long
-    - _groupType : LaneType
-    - _groupLeft : int
+    - {static} Abilities : Dictionary<Ability, IAbilityStrategy>
+    - {static} LaneFactories : Dictionary<LaneType, ILaneFactory>
+    - {static} Builders : Dictionary<LaneType, LaneBuilder>
+    ~ CreateBuilder()
+    - {static} Traffic : Dictionary<LaneType, ILaneTraffic>
+    ~ CreateTraffic()
     + Game(hub : IHubContext<GameHub>, config : IConfiguration)
     - {static} Now : long
     - Runners : IEnumerable<Player>
@@ -152,18 +178,15 @@ package "CrossyDeathmatch.Server" <<Frame>> {
     - {static} Cause(kind : ObstacleKind) : string
     - UpdateLane(lane : Lane, dt : double, now : long)
     - AddLane(now : long)
-    - PickNextGroup(difficulty : double)
-    - {static} NewCar(lane : Lane, x : double?) : Obstacle
-    - {static} AddCoin(lane : Lane, chance : double)
+    ~ {static} AddCoin(lane : Lane, chance : double)
     - GetLane(index : int) : Lane?
-    - {static} IsBlocked(lane : Lane, column : int) : bool
+    ~ {static} IsBlocked(lane : Lane, column : int) : bool
     ~ Any(o)
-    - {static} MinGap(index : int) : double
-    - {static} MaxGap(index : int) : double
-    - {static} Between(min : double, max : double) : double
-    - {static} Chance(probability : double) : bool
+    ~ {static} Between(min : double, max : double) : double
+    ~ {static} Chance(probability : double) : bool
     - Find(id : string) : Player?
-    - ConnectedIds() : List<string>
+    - Attach(id : string, observer : IGameObserver)
+    - Detach(id : string)
     - SendState()
     - Announce(text : string)
     - SendMessage(id : string, text : string)
@@ -176,6 +199,76 @@ package "CrossyDeathmatch.Server" <<Frame>> {
     + Move(dx : int, dy : int)
     + UseAbility(ability : Ability, lane : int, column : int)
     + OnDisconnectedAsync(exception : Exception?) : Task
+  }
+  class GrassLaneBuilder {
+    + BuildTrees()
+    + BuildCoins()
+  }
+  class GrassLaneFactory {
+    + CreateBuilder() : LaneBuilder
+    + CreateTraffic() : ILaneTraffic
+  }
+  class GrassTraffic {
+    + Update(lane : Lane, dt : double, now : long)
+  }
+  abstract class LaneBuilder {
+    # _lane : Lane
+    + Reset(index : int, type : LaneType)
+    + BuildTrees()
+    + BuildTraffic(now : long)
+    + BuildCoins()
+    + GetLane() : Lane
+  }
+  class ObstacleFactory <<static>> {
+    + {static} Create(kind : ObstacleKind, lane : Lane, now : long, x : double?) : Obstacle
+    + {static} CreateVehicle(lane : Lane, now : long, x : double?) : Obstacle
+  }
+  class RailLaneBuilder {
+    + BuildTraffic(now : long)
+  }
+  class RailLaneFactory {
+    + CreateBuilder() : LaneBuilder
+    + CreateTraffic() : ILaneTraffic
+  }
+  class RailTraffic {
+    + Update(lane : Lane, dt : double, now : long)
+  }
+  class RainAbility {
+    + Use(state : GameState, lane : Lane?, column : int, now : long) : bool
+  }
+  class RoadLaneBuilder {
+    + BuildTraffic(now : long)
+    + BuildCoins()
+  }
+  class RoadLaneFactory {
+    + CreateBuilder() : LaneBuilder
+    + CreateTraffic() : ILaneTraffic
+  }
+  class RoadTraffic {
+    + Update(lane : Lane, dt : double, now : long)
+  }
+  class ServerLog {
+    - {static} LazyInstance : Lazy<ServerLog>
+    - _lock : object
+    - ServerLog()
+    + {static} Instance : ServerLog
+    + Info(text : string)
+    + Error(ex : Exception)
+    - Write(text : string)
+  }
+  interface IAbilityStrategy <<interface>> {
+    + Use(state : GameState, lane : Lane?, column : int, now : long) : bool
+  }
+  interface IGameObserver <<interface>> {
+    + OnState(json : string)
+    + OnMessage(text : string)
+  }
+  interface ILaneFactory <<interface>> {
+    + CreateBuilder() : LaneBuilder
+    + CreateTraffic() : ILaneTraffic
+  }
+  interface ILaneTraffic <<interface>> {
+    + Update(lane : Lane, dt : double, now : long)
   }
 }
 
@@ -258,13 +351,34 @@ package "External" <<Frame>> {
 Form <|-- MainForm
 MainForm "1" *-- "1" GameState : _state
 MainForm --> "1" Player : Me
+CarAbility ..|> IAbilityStrategy
+BoulderAbility ..|> IAbilityStrategy
+FoxAbility ..|> IAbilityStrategy
+RainAbility ..|> IAbilityStrategy
 Game ..> GameHub : _hub
 Game "1" *-- "1" GameState : _state
+Game "1" *-- "*" IGameObserver : _observers
+Game --> "*" IAbilityStrategy : Abilities
+Game --> "*" ILaneFactory : LaneFactories
+Game "1" *-- "*" LaneBuilder : Builders
+Game "1" *-- "*" ILaneTraffic : Traffic
 Game --> "*" Player : Runners
 Hub <|-- GameHub
 GameHub --> "1" Game : game
-Lane --> "*" Obstacle : Obstacles
+LaneBuilder "1" *-- "1" Lane : _lane
+LaneBuilder <|-- GrassLaneBuilder
+LaneBuilder <|-- RoadLaneBuilder
+LaneBuilder <|-- RailLaneBuilder
+GrassLaneFactory ..|> ILaneFactory
+RoadLaneFactory ..|> ILaneFactory
+RailLaneFactory ..|> ILaneFactory
+GrassTraffic ..|> ILaneTraffic
+RoadTraffic ..|> ILaneTraffic
+RailTraffic ..|> ILaneTraffic
+ClientObserver ..|> IGameObserver
+ConsoleObserver ..|> IGameObserver
 GameState --> "*" Player : Players
 GameState --> "*" Lane : Lanes
+Lane --> "*" Obstacle : Obstacles
 
 @enduml

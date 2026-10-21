@@ -1,0 +1,283 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1552" height="1304" viewBox="0 0 1552 1304" font-family="Arial, Helvetica, sans-serif" font-size="12">
+<title>Crossy Deathmatch - Singleton, Factory and Abstract Factory</title>
+<defs>
+  <marker id="open" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+    <path d="M1,1 L11,6 L1,11" fill="none" stroke="#222" stroke-width="1.2"/>
+  </marker>
+</defs>
+<style>
+  .box { fill: #fffef6; stroke: #222; stroke-width: 1.2; }
+  .note { fill: #fff8c4; stroke: #222; stroke-width: 1; }
+  .edge { fill: none; stroke: #222; stroke-width: 1.1; }
+  .dash { stroke-dasharray: 6 4; }
+  .tri { fill: #fff; stroke: #222; stroke-width: 1.1; }
+  text { fill: #111; }
+  .name { font-weight: bold; font-size: 13px; }
+  .abs { font-style: italic; }
+  .static { text-decoration: underline; }
+  .lab { font-size: 11px; fill: #333; }
+  .nb { font-weight: bold; }
+</style>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="776" y="22" text-anchor="middle" font-size="15" font-weight="bold">class Crossy Deathmatch server: Singleton, Factory, Abstract Factory</text>
+<polygon points="60,360 46,352 46,368" class="tri"/>
+<polyline points="46,360 34,360 34,812.0" class="edge"/>
+<polyline points="34,572.0 60,572.0" class="edge"/>
+<polyline points="34,692.0 60,692.0" class="edge"/>
+<polyline points="34,812.0 60,812.0" class="edge"/>
+<polygon points="1021.0,390 1035.0,382 1035.0,398" class="tri"/>
+<polyline points="1035.0,390 1047.0,390 1047.0,812.0" class="edge dash"/>
+<polyline points="1047.0,572.0 1021.0,572.0" class="edge dash"/>
+<polyline points="1047.0,692.0 1021.0,692.0" class="edge dash"/>
+<polyline points="1047.0,812.0 1021.0,812.0" class="edge dash"/>
+<polygon points="423.0,390 409.0,382 409.0,398" class="tri"/>
+<polyline points="409.0,390 393.0,390 393.0,794.0" class="edge dash"/>
+<polyline points="393.0,554.0 423.0,554.0" class="edge dash"/>
+<polyline points="393.0,674.0 423.0,674.0" class="edge dash"/>
+<polyline points="393.0,794.0 423.0,794.0" class="edge dash"/>
+<polyline points="423.0,578.0 303.0,578.0" class="edge dash" marker-end="url(#open)"/>
+<text x="363.0" y="573.0" text-anchor="middle" class="lab">«create»</text>
+<polyline points="609.0,578.0 729.0,578.0" class="edge dash" marker-end="url(#open)"/>
+<text x="669.0" y="573.0" text-anchor="middle" class="lab">«create»</text>
+<polyline points="423.0,698.0 303.0,698.0" class="edge dash" marker-end="url(#open)"/>
+<text x="363.0" y="693.0" text-anchor="middle" class="lab">«create»</text>
+<polyline points="609.0,698.0 729.0,698.0" class="edge dash" marker-end="url(#open)"/>
+<text x="669.0" y="693.0" text-anchor="middle" class="lab">«create»</text>
+<polyline points="423.0,818.0 303.0,818.0" class="edge dash" marker-end="url(#open)"/>
+<text x="363.0" y="813.0" text-anchor="middle" class="lab">«create»</text>
+<polyline points="609.0,818.0 729.0,818.0" class="edge dash" marker-end="url(#open)"/>
+<text x="669.0" y="813.0" text-anchor="middle" class="lab">«create»</text>
+<rect x="346.0" y="146" width="99.0" height="20" class="box"/>
+<text x="395.5" y="160" text-anchor="middle">type : LaneType</text>
+<polyline points="395.5,166 395.5,206 181.5,206 181.5,330" class="edge" marker-end="url(#open)"/>
+<text x="187.5" y="310" text-anchor="start" class="static">-Builders</text>
+<text x="187.5" y="324" text-anchor="start">1</text>
+<rect x="466.5" y="146" width="99.0" height="20" class="box"/>
+<text x="516.0" y="160" text-anchor="middle">type : LaneType</text>
+<polyline points="516.0,166 516.0,360" class="edge" marker-end="url(#open)"/>
+<text x="522.0" y="340" text-anchor="start" class="static">-LaneFactories</text>
+<text x="522.0" y="354" text-anchor="start">1</text>
+<rect x="587.0" y="146" width="99.0" height="20" class="box"/>
+<text x="636.5" y="160" text-anchor="middle">type : LaneType</text>
+<polyline points="636.5,166 636.5,315 875.0,315 875.0,360" class="edge" marker-end="url(#open)"/>
+<text x="881.0" y="340" text-anchor="start" class="static">-Traffic</text>
+<text x="881.0" y="354" text-anchor="start">1</text>
+<polyline points="1383.0,80 1413.0,80 1413.0,130 1383.0,130" class="edge" marker-end="url(#open)"/>
+<text x="1387.0" y="124" text-anchor="start">1</text>
+<text x="1417.0" y="108" text-anchor="start" class="static">-LazyInstance</text>
+<polyline points="696.0,70 1121.0,70" class="edge dash" marker-end="url(#open)"/>
+<text x="908.5" y="65" text-anchor="middle" class="lab">«use»</text>
+<polyline points="1161.0,280 1161.0,210" class="edge dash" marker-end="url(#open)"/>
+<text x="1167.0" y="249.0" text-anchor="start" class="lab">«use»</text>
+<polygon points="1216.0,416 1208.0,402 1224.0,402" class="tri"/>
+<polyline points="1216.0,356 1216.0,402" class="edge dash"/>
+<polyline points="757.5,990.0 867.5,990.0" class="edge dash" marker-end="url(#open)"/>
+<text x="812.5" y="985.0" text-anchor="middle" class="lab">«create»</text>
+<polyline points="636.75,1044.0 636.75,1128.0 1110.0,1128.0 1110.0,1072.0" class="edge dash" marker-end="url(#open)"/>
+<text x="1104.0" y="1123.0" text-anchor="end" class="lab">«use»</text>
+<polygon points="265.5,1126.0 257.5,1140.0 273.5,1140.0" class="tri"/>
+<polyline points="265.5,1140.0 265.5,1166.0" class="edge dash"/>
+<polyline points="142.5,1166.0 388.5,1166.0" class="edge dash"/>
+<polyline points="142.5,1166.0 142.5,1194.0" class="edge dash"/>
+<polyline points="265.5,1166.0 265.5,1194.0" class="edge dash"/>
+<polyline points="388.5,1166.0 388.5,1194.0" class="edge dash"/>
+<polyline points="142.5,1220.0 142.5,1248.0" class="edge dash"/>
+<polyline points="265.5,1220.0 265.5,1248.0" class="edge dash"/>
+<polyline points="388.5,1220.0 388.5,1248.0" class="edge dash"/>
+<polyline points="142.5,1248.0 481.0,1248.0 481.0,1044.0" class="edge dash" marker-end="url(#open)"/>
+<text x="487.0" y="1242.0" text-anchor="start" class="lab">«use»</text>
+<polyline points="303.0,714.0 338.0,714.0 338.0,974.0 274.5,974.0" class="edge dash" marker-end="url(#open)"/>
+<text x="343.0" y="882.0" text-anchor="start" class="lab">«use»</text>
+<polyline points="729.0,710.0 699.0,710.0 699.0,974.0 757.5,974.0" class="edge dash" marker-end="url(#open)"/>
+<polyline points="729.0,830.0 699.0,830.0" class="edge dash"/>
+<text x="704.0" y="882.0" text-anchor="start" class="lab">«use»</text>
+<path d="M30,40 h239.0 l12,12 v110 h-251.0 z" class="note"/>
+<path d="M269.0,40 v12 h12" class="edge"/>
+<text x="38" y="57" class="nb">Abstract Factory</text>
+<text x="38" y="73">AbstractFactory: ILaneFactory</text>
+<text x="38" y="89">ConcreteFactory: GrassLaneFactory,</text>
+<text x="38" y="105">      RoadLaneFactory, RailLaneFactory</text>
+<text x="38" y="121">AbstractProduct: LaneBuilder, ILaneTraffic</text>
+<text x="38" y="137">ConcreteProduct: *LaneBuilder, *Traffic</text>
+<text x="38" y="153">Client: Game</text>
+<path d="M1341.0,280 h159.0 l12,12 v78 h-171.0 z" class="note"/>
+<path d="M1500.0,280 v12 h12" class="edge"/>
+<text x="1349.0" y="297" class="nb">Singleton</text>
+<text x="1349.0" y="313">Singleton: ServerLog</text>
+<text x="1349.0" y="329">private constructor; the only</text>
+<text x="1349.0" y="345">instance is made lazily and</text>
+<text x="1349.0" y="361">returned by Instance</text>
+<line x1="1361.0" y1="280" x2="1361.0" y2="210" class="edge dash"/>
+<path d="M867.5,1158.0 h192.0 l12,12 v94 h-204.0 z" class="note"/>
+<path d="M1059.5,1158.0 v12 h12" class="edge"/>
+<text x="875.5" y="1175.0" class="nb">Factory</text>
+<text x="875.5" y="1191.0">Factory: ObstacleFactory</text>
+<text x="875.5" y="1207.0">Product: Obstacle</text>
+<text x="875.5" y="1223.0">Clients: CarAbility, BoulderAbility,</text>
+<text x="875.5" y="1239.0">FoxAbility, RoadLaneBuilder,</text>
+<text x="875.5" y="1255.0">RoadTraffic, RailTraffic</text>
+<line x1="867.5" y1="1178.0" x2="757.5" y2="1032.0" class="edge dash"/>
+<g class="cls"><rect x="336.0" y="40" width="360" height="106" class="box"/>
+<text x="516.0" y="60" text-anchor="middle" class="name">Game</text>
+<line x1="336.0" y1="66" x2="696.0" y2="66" class="edge"/>
+<text x="344.0" y="82">- _state : GameState</text>
+<line x1="336.0" y1="90" x2="696.0" y2="90" class="edge"/>
+<text x="344.0" y="106">- Tick() : void</text>
+<text x="344.0" y="122">- AddLane(now : long) : void</text>
+<text x="344.0" y="138">- UpdateLane(lane : Lane, dt : double, now : long) : void</text>
+</g>
+<g class="cls"><rect x="1121.0" y="40" width="262.0" height="170" class="box"/>
+<text x="1252.0" y="60" text-anchor="middle" class="name">ServerLog</text>
+<text x="1252.0" y="75" text-anchor="middle">{leaf}</text>
+<line x1="1121.0" y1="82" x2="1383.0" y2="82" class="edge"/>
+<text x="1129.0" y="98" class="static">- LazyInstance : Lazy&lt;ServerLog&gt; {readOnly}</text>
+<text x="1129.0" y="114">- _lock : object {readOnly}</text>
+<line x1="1121.0" y1="122" x2="1383.0" y2="122" class="edge"/>
+<text x="1129.0" y="138">- ServerLog()</text>
+<text x="1129.0" y="154" class="static">+ «property» Instance() : ServerLog</text>
+<text x="1129.0" y="170">+ Info(text : string) : void</text>
+<text x="1129.0" y="186">+ Error(ex : Exception) : void</text>
+<text x="1129.0" y="202">- Write(text : string) : void</text>
+</g>
+<g class="cls"><rect x="1121.0" y="280" width="190.0" height="76" class="box"/>
+<text x="1216.0" y="300" text-anchor="middle" class="name">ConsoleObserver</text>
+<line x1="1121.0" y1="306" x2="1311.0" y2="306" class="edge"/>
+<line x1="1121.0" y1="316" x2="1311.0" y2="316" class="edge"/>
+<text x="1129.0" y="332">+ OnState(json : string) : void</text>
+<text x="1129.0" y="348">+ OnMessage(text : string) : void</text>
+</g>
+<g class="cls"><rect x="1160.0" y="416" width="112.0" height="42" class="box"/>
+<text x="1216.0" y="435" text-anchor="middle">«interface»</text>
+<text x="1216.0" y="452" text-anchor="middle" class="name">IGameObserver</text>
+</g>
+<g class="cls"><rect x="423.0" y="360" width="186.0" height="92" class="box"/>
+<text x="516.0" y="379" text-anchor="middle">«interface»</text>
+<text x="516.0" y="396" text-anchor="middle" class="name">ILaneFactory</text>
+<line x1="423.0" y1="402" x2="609.0" y2="402" class="edge"/>
+<line x1="423.0" y1="412" x2="609.0" y2="412" class="edge"/>
+<text x="431.0" y="428" class="abs">+ CreateBuilder() : LaneBuilder</text>
+<text x="431.0" y="444" class="abs">+ CreateTraffic() : ILaneTraffic</text>
+</g>
+<g class="cls"><rect x="423.0" y="534.0" width="186.0" height="76" class="box"/>
+<text x="516.0" y="554.0" text-anchor="middle" class="name">GrassLaneFactory</text>
+<line x1="423.0" y1="560.0" x2="609.0" y2="560.0" class="edge"/>
+<line x1="423.0" y1="570.0" x2="609.0" y2="570.0" class="edge"/>
+<text x="431.0" y="586.0">+ CreateBuilder() : LaneBuilder</text>
+<text x="431.0" y="602.0">+ CreateTraffic() : ILaneTraffic</text>
+</g>
+<g class="cls"><rect x="423.0" y="654.0" width="186.0" height="76" class="box"/>
+<text x="516.0" y="674.0" text-anchor="middle" class="name">RoadLaneFactory</text>
+<line x1="423.0" y1="680.0" x2="609.0" y2="680.0" class="edge"/>
+<line x1="423.0" y1="690.0" x2="609.0" y2="690.0" class="edge"/>
+<text x="431.0" y="706.0">+ CreateBuilder() : LaneBuilder</text>
+<text x="431.0" y="722.0">+ CreateTraffic() : ILaneTraffic</text>
+</g>
+<g class="cls"><rect x="423.0" y="774.0" width="186.0" height="76" class="box"/>
+<text x="516.0" y="794.0" text-anchor="middle" class="name">RailLaneFactory</text>
+<line x1="423.0" y1="800.0" x2="609.0" y2="800.0" class="edge"/>
+<line x1="423.0" y1="810.0" x2="609.0" y2="810.0" class="edge"/>
+<text x="431.0" y="826.0">+ CreateBuilder() : LaneBuilder</text>
+<text x="431.0" y="842.0">+ CreateTraffic() : ILaneTraffic</text>
+</g>
+<g class="cls"><rect x="60" y="330" width="243.0" height="154" class="box"/>
+<text x="181.5" y="350" text-anchor="middle" class="name abs">LaneBuilder</text>
+<text x="181.5" y="365" text-anchor="middle">{abstract}</text>
+<line x1="60" y1="372" x2="303.0" y2="372" class="edge"/>
+<text x="68" y="388"># _lane : Lane</text>
+<line x1="60" y1="396" x2="303.0" y2="396" class="edge"/>
+<text x="68" y="412">+ Reset(index : int, type : LaneType) : void</text>
+<text x="68" y="428">+ BuildTrees() : void</text>
+<text x="68" y="444">+ BuildTraffic(now : long) : void</text>
+<text x="68" y="460">+ BuildCoins() : void</text>
+<text x="68" y="476">+ GetLane() : Lane</text>
+</g>
+<g class="cls"><rect x="60" y="534.0" width="243.0" height="76" class="box"/>
+<text x="181.5" y="554.0" text-anchor="middle" class="name">GrassLaneBuilder</text>
+<line x1="60" y1="560.0" x2="303.0" y2="560.0" class="edge"/>
+<line x1="60" y1="570.0" x2="303.0" y2="570.0" class="edge"/>
+<text x="68" y="586.0">+ BuildTrees() : void</text>
+<text x="68" y="602.0">+ BuildCoins() : void</text>
+</g>
+<g class="cls"><rect x="60" y="654.0" width="243.0" height="76" class="box"/>
+<text x="181.5" y="674.0" text-anchor="middle" class="name">RoadLaneBuilder</text>
+<line x1="60" y1="680.0" x2="303.0" y2="680.0" class="edge"/>
+<line x1="60" y1="690.0" x2="303.0" y2="690.0" class="edge"/>
+<text x="68" y="706.0">+ BuildTraffic(now : long) : void</text>
+<text x="68" y="722.0">+ BuildCoins() : void</text>
+</g>
+<g class="cls"><rect x="60" y="782.0" width="243.0" height="60" class="box"/>
+<text x="181.5" y="802.0" text-anchor="middle" class="name">RailLaneBuilder</text>
+<line x1="60" y1="808.0" x2="303.0" y2="808.0" class="edge"/>
+<line x1="60" y1="818.0" x2="303.0" y2="818.0" class="edge"/>
+<text x="68" y="834.0">+ BuildTraffic(now : long) : void</text>
+</g>
+<g class="cls"><rect x="729.0" y="360" width="292.0" height="76" class="box"/>
+<text x="875.0" y="379" text-anchor="middle">«interface»</text>
+<text x="875.0" y="396" text-anchor="middle" class="name">ILaneTraffic</text>
+<line x1="729.0" y1="402" x2="1021.0" y2="402" class="edge"/>
+<line x1="729.0" y1="412" x2="1021.0" y2="412" class="edge"/>
+<text x="737.0" y="428" class="abs">+ Update(lane : Lane, dt : double, now : long) : void</text>
+</g>
+<g class="cls"><rect x="729.0" y="542.0" width="292.0" height="60" class="box"/>
+<text x="875.0" y="562.0" text-anchor="middle" class="name">GrassTraffic</text>
+<line x1="729.0" y1="568.0" x2="1021.0" y2="568.0" class="edge"/>
+<line x1="729.0" y1="578.0" x2="1021.0" y2="578.0" class="edge"/>
+<text x="737.0" y="594.0">+ Update(lane : Lane, dt : double, now : long) : void</text>
+</g>
+<g class="cls"><rect x="729.0" y="662.0" width="292.0" height="60" class="box"/>
+<text x="875.0" y="682.0" text-anchor="middle" class="name">RoadTraffic</text>
+<line x1="729.0" y1="688.0" x2="1021.0" y2="688.0" class="edge"/>
+<line x1="729.0" y1="698.0" x2="1021.0" y2="698.0" class="edge"/>
+<text x="737.0" y="714.0">+ Update(lane : Lane, dt : double, now : long) : void</text>
+</g>
+<g class="cls"><rect x="729.0" y="782.0" width="292.0" height="60" class="box"/>
+<text x="875.0" y="802.0" text-anchor="middle" class="name">RailTraffic</text>
+<line x1="729.0" y1="808.0" x2="1021.0" y2="808.0" class="edge"/>
+<line x1="729.0" y1="818.0" x2="1021.0" y2="818.0" class="edge"/>
+<text x="737.0" y="834.0">+ Update(lane : Lane, dt : double, now : long) : void</text>
+</g>
+<g class="cls"><rect x="274.5" y="952.0" width="483.0" height="92" class="box"/>
+<text x="516.0" y="971.0" text-anchor="middle">«utility»</text>
+<text x="516.0" y="988.0" text-anchor="middle" class="name">ObstacleFactory</text>
+<line x1="274.5" y1="994.0" x2="757.5" y2="994.0" class="edge"/>
+<line x1="274.5" y1="1004.0" x2="757.5" y2="1004.0" class="edge"/>
+<text x="282.5" y="1020.0" class="static">+ Create(kind : ObstacleKind, lane : Lane, now : long, x : double [0..1] = null) : Obstacle</text>
+<text x="282.5" y="1036.0" class="static">+ CreateVehicle(lane : Lane, now : long, x : double [0..1] = null) : Obstacle</text>
+</g>
+<g class="cls"><rect x="867.5" y="942.0" width="133.0" height="156" class="box"/>
+<text x="934.0" y="962.0" text-anchor="middle" class="name">Obstacle</text>
+<line x1="867.5" y1="968.0" x2="1000.5" y2="968.0" class="edge"/>
+<text x="875.5" y="984.0">+ Kind : ObstacleKind</text>
+<text x="875.5" y="1000.0">+ X : double</text>
+<text x="875.5" y="1016.0">+ Length : int = 1</text>
+<text x="875.5" y="1032.0">+ Speed : double</text>
+<text x="875.5" y="1048.0">+ LandsAt : long</text>
+<text x="875.5" y="1064.0">+ Landed : bool</text>
+<text x="875.5" y="1080.0">+ ExpiresAt : long</text>
+<line x1="867.5" y1="1088.0" x2="1000.5" y2="1088.0" class="edge"/>
+</g>
+<g class="cls"><rect x="1060.5" y="942.0" width="99.0" height="130" class="box"/>
+<text x="1110.0" y="961.0" text-anchor="middle">«enumeration»</text>
+<text x="1110.0" y="978.0" text-anchor="middle" class="name">ObstacleKind</text>
+<line x1="1060.5" y1="984.0" x2="1159.5" y2="984.0" class="edge"/>
+<text x="1068.5" y="1000.0">Car</text>
+<text x="1068.5" y="1016.0">Truck</text>
+<text x="1068.5" y="1032.0">Train</text>
+<text x="1068.5" y="1048.0">Fox</text>
+<text x="1068.5" y="1064.0">Boulder</text>
+<line x1="1060.5" y1="1072.0" x2="1159.5" y2="1072.0" class="edge"/>
+</g>
+<g class="cls"><rect x="210.0" y="1084.0" width="111.0" height="42" class="box"/>
+<text x="265.5" y="1103.0" text-anchor="middle">«interface»</text>
+<text x="265.5" y="1120.0" text-anchor="middle" class="name">IAbilityStrategy</text>
+</g>
+<g class="cls"><rect x="90.0" y="1194.0" width="105.0" height="26" class="box"/>
+<text x="142.5" y="1214.0" text-anchor="middle" class="name">CarAbility</text>
+</g>
+<g class="cls"><rect x="213.0" y="1194.0" width="105.0" height="26" class="box"/>
+<text x="265.5" y="1214.0" text-anchor="middle" class="name">BoulderAbility</text>
+</g>
+<g class="cls"><rect x="336.0" y="1194.0" width="105.0" height="26" class="box"/>
+<text x="388.5" y="1214.0" text-anchor="middle" class="name">FoxAbility</text>
+</g>
+</svg>
