@@ -21,7 +21,8 @@ public class Game
     private readonly IHubContext<GameHub> _hub;
     private readonly GameState _state = new();
     private readonly Dictionary<string, IGameObserver> _observers = new();
-    private readonly Invoker _invoker = new();
+    private readonly Invoker _moveInvoker = new();
+    private readonly Invoker _abilityInvoker = new();
     private readonly Timer _timer;
     private readonly int _minPlayers;
     private readonly int _roundSeconds;
@@ -163,7 +164,7 @@ public class Game
             if (laneIndex < runner.MaxLane - Rules.BacktrackLimit) return;
             if (lane == null || IsBlocked(lane, x)) return;
 
-            _invoker.Run(new MoveCommand(runner, dx, dy, now));
+            _moveInvoker.Run(new MoveCommand(runner, dx, dy, now));
         }
     }
 
@@ -180,7 +181,7 @@ public class Game
             string? error = null;
             if (now < mastermind.ReadyAt[(int)ability]) error = $"{name} is recharging";
             else if (mastermind.Energy < Rules.Cost(ability)) error = $"Not enough energy for {name}";
-            else if (!_invoker.Run(new UseAbilityCommand(Abilities[ability], _state, lane, column, now))) error = $"{name} can't be used there";
+            else if (!_abilityInvoker.Run(new UseAbilityCommand(ability, Abilities[ability], _state, lane, column, now))) error = $"{name} can't be used there";
             if (error != null)
             {
                 SendMessage(id, error);
@@ -190,6 +191,26 @@ public class Game
             mastermind.Energy -= Rules.Cost(ability);
             mastermind.ReadyAt[(int)ability] = now + Rules.CooldownMs(ability);
             Announce($"Mastermind used {name}!");
+        }
+    }
+
+    public void UndoAbility(string id)
+    {
+        lock (_state)
+        {
+            var mastermind = Find(id);
+            if (!_state.Playing || mastermind == null || !mastermind.IsMastermind || mastermind.Left) return;
+
+            if (_abilityInvoker.Undo() is not UseAbilityCommand command)
+            {
+                SendMessage(id, "Nothing to undo");
+                return;
+            }
+
+            mastermind.Energy = Math.Min(Rules.MaxEnergy, mastermind.Energy + Rules.Cost(command.Ability));
+            mastermind.ReadyAt[(int)command.Ability] = 0;
+            Announce($"Mastermind undid {Rules.Name(command.Ability)}!");
+            SendState();
         }
     }
 
@@ -226,7 +247,8 @@ public class Game
         }
 
         _state.Lanes.Clear();
-        _invoker.Clear();
+        _moveInvoker.Clear();
+        _abilityInvoker.Clear();
         while (_state.Lanes.Count <= LanesAhead) AddLane(now);
 
         _state.Playing = true;

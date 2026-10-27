@@ -16,6 +16,8 @@ public class GameHub(Game game) : Hub
 
     public void UseAbility(Ability ability, int lane, int column) => game.UseAbility(Context.ConnectionId, ability, lane, column);
 
+    public void UndoAbility() => game.UndoAbility(Context.ConnectionId);
+
     public override Task OnDisconnectedAsync(Exception? exception)
     {
         game.Leave(Context.ConnectionId);

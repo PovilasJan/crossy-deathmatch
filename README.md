@@ -49,7 +49,7 @@ Players can't join while a round is running. Someone who leaves mid-round is mar
 | Role | Controls |
 |---|---|
 | Runner | `W A S D` or arrow keys: one hop per press |
-| Mastermind | `1`–`4` or click a button to pick an ability, then click the map. `Esc` or right-click cancels |
+| Mastermind | `1`–`4` or click a button to pick an ability, then click the map. `Esc` or right-click cancels. `Z` undoes the last ability |
 
 ### Rules
 

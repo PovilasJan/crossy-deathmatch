@@ -253,6 +253,7 @@ public class MainForm : Form
         {
             if (keyData == Keys.Escape) _selected = null;
             else if (keyData is >= Keys.D1 and <= Keys.D4) Choose((Ability)(keyData - Keys.D1));
+            else if (keyData == Keys.Z) Send("UndoAbility");
             else return base.ProcessCmdKey(ref msg, keyData);
             return true;
         }
@@ -695,7 +696,7 @@ public class MainForm : Form
 
         var hint = _selected is { } selected
             ? $"Click the map to use {Rules.Name(selected)}. Esc or right-click to cancel."
-            : "Press 1-4 or click a button to pick an ability";
+            : "Press 1-4 to pick an ability, Z to undo the last one";
         var hintBox = new RectangleF(ClientSize.Width / 2f - 230, bar.Y - 34, 460, 26);
         Fill(g, HudPanel, hintBox);
         TextCentered(g, hint, 9.5f, Color.White, hintBox);
