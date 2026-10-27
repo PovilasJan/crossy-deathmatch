@@ -30,3 +30,8 @@ public class AdrenalineDecorator(IHopCooldown wrappee) : HopDecorator(wrappee)
 {
     public override double GetMs() => _wrappee.GetMs() * Rules.AdrenalineSpeedup;
 }
+
+public class BackwardDecorator(IHopCooldown wrappee) : HopDecorator(wrappee)
+{
+    public override double GetMs() => _wrappee.GetMs() * Rules.BackwardSlowdown;
+}

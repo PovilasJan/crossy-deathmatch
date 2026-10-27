@@ -147,13 +147,15 @@ public class Game
             var runner = Find(id);
             if (!_state.Playing || runner == null || runner.IsMastermind || runner.Out || runner.RespawnAt > 0) return;
 
+            dx = Math.Sign(dx);
+            dy = dx != 0 ? 0 : Math.Sign(dy);
+
             IHopCooldown hop = new AnimalHop(runner.Animal);
             if (now < _state.RainUntil) hop = new RainDecorator(hop);
             if (runner.Lives == 1) hop = new AdrenalineDecorator(hop);
+            if (dy < 0) hop = new BackwardDecorator(hop);
             if (now - runner.LastHopAt < hop.GetMs()) return;
 
-            dx = Math.Sign(dx);
-            dy = dx != 0 ? 0 : Math.Sign(dy);
             var x = runner.X + dx;
             var laneIndex = runner.Lane + dy;
             var lane = GetLane(laneIndex);
