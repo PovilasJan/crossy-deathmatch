@@ -299,7 +299,7 @@ public class Game
 
             // The hitbox is a little narrower than the tile, so grazing a bumper is forgiven.
             var hit = lane.Obstacles.FirstOrDefault(o =>
-                o.Kind != ObstacleKind.Boulder && o.X < runner.X + 0.8 && o.X + o.Length > runner.X + 0.2);
+                o.Kind != ObstacleKind.Boulder && o.X + o.Hitbox.Inset < runner.X + 1 && o.X + o.Length - o.Hitbox.Inset > runner.X);
             if (hit != null && now >= runner.InvulnerableUntil)
             {
                 Hit(runner, Cause(hit.Kind), now);

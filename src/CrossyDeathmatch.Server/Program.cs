@@ -2,9 +2,18 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using CrossyDeathmatch.Server;
 
-// Options: --port 5000 --min-players 2 --round-seconds 180
+// Options: --port 5000 --min-players 2 --round-seconds 180 --deep-copy true --prototype-demo true
 var builder = WebApplication.CreateBuilder(args);
 var port = builder.Configuration.GetValue("port", 5000);
+
+if (builder.Configuration.GetValue("prototype-demo", false))
+{
+    PrototypeDemo.Run();
+    return;
+}
+
+ObstacleFactory.Registry.UseDeepCopy = builder.Configuration.GetValue("deep-copy", true);
+ServerLog.Instance.Info($"Obstacle copies: {(ObstacleFactory.Registry.UseDeepCopy ? "deep" : "shallow")}");
 
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 builder.Services.AddSignalR();

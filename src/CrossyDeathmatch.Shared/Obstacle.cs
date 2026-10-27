@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CrossyDeathmatch.Shared;
 
 public class Obstacle : IPrototype<Obstacle>
@@ -10,5 +12,15 @@ public class Obstacle : IPrototype<Obstacle>
     public bool Landed { get; set; }
     public long ExpiresAt { get; set; }
 
-    public Obstacle Clone() => (Obstacle)MemberwiseClone();
+    [JsonIgnore]
+    public Hitbox Hitbox { get; set; } = new();
+
+    public Obstacle ShallowClone() => (Obstacle)MemberwiseClone();
+
+    public Obstacle DeepClone()
+    {
+        var copy = (Obstacle)MemberwiseClone();
+        copy.Hitbox = new Hitbox { Inset = Hitbox.Inset };
+        return copy;
+    }
 }

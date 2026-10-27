@@ -2,5 +2,6 @@ namespace CrossyDeathmatch.Shared;
 
 public interface IPrototype<T>
 {
-    T Clone();
+    T ShallowClone();
+    T DeepClone();
 }

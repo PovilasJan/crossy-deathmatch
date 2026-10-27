@@ -8,7 +8,7 @@ namespace CrossyDeathmatch.Server;
 /// </summary>
 public static class ObstacleFactory
 {
-    private static readonly PrototypeRegistry Registry = CreateRegistry();
+    public static readonly PrototypeRegistry Registry = CreateRegistry();
 
     private static PrototypeRegistry CreateRegistry()
     {
