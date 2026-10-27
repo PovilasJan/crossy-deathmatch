@@ -147,8 +147,10 @@ public class Game
             var runner = Find(id);
             if (!_state.Playing || runner == null || runner.IsMastermind || runner.Out || runner.RespawnAt > 0) return;
 
-            var cooldown = Rules.HopCooldownMs(runner.Animal) * (now < _state.RainUntil ? Rules.RainSlowdown : 1);
-            if (now - runner.LastHopAt < cooldown) return;
+            IHopCooldown hop = new AnimalHop(runner.Animal);
+            if (now < _state.RainUntil) hop = new RainDecorator(hop);
+            if (runner.Lives == 1) hop = new AdrenalineDecorator(hop);
+            if (now - runner.LastHopAt < hop.GetMs()) return;
 
             dx = Math.Sign(dx);
             dy = dx != 0 ? 0 : Math.Sign(dy);

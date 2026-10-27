@@ -17,6 +17,7 @@ public static class Rules
     public const int FoxLifeMs = 15000;
     public const int RainMs = 10000;
     public const double RainSlowdown = 1.8;
+    public const double AdrenalineSpeedup = 0.7;
     public const double MaxEnergy = 100;
     public const double StartEnergy = 40;
     public const double EnergyPerSecond = 6;
