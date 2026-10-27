@@ -27,4 +27,17 @@ public class Player
 
     /// <summary>Server time at which each ability (indexed by <see cref="Ability"/>) can be used again.</summary>
     public long[] ReadyAt { get; set; } = new long[4];
+
+    /// <summary>Moves the runner one tile. The caller has already checked the hop is allowed.</summary>
+    public void Hop(int dx, int dy, long now)
+    {
+        X += dx;
+        Lane += dy;
+        LastHopAt = now;
+        if (Lane > MaxLane)
+        {
+            Score += Lane - MaxLane;
+            MaxLane = Lane;
+        }
+    }
 }

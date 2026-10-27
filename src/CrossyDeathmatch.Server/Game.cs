@@ -21,6 +21,7 @@ public class Game
     private readonly IHubContext<GameHub> _hub;
     private readonly GameState _state = new();
     private readonly Dictionary<string, IGameObserver> _observers = new();
+    private readonly Invoker _invoker = new();
     private readonly Timer _timer;
     private readonly int _minPlayers;
     private readonly int _roundSeconds;
@@ -158,14 +159,7 @@ public class Game
             if (laneIndex < runner.MaxLane - Rules.BacktrackLimit) return;
             if (lane == null || IsBlocked(lane, x)) return;
 
-            runner.X = x;
-            runner.Lane = laneIndex;
-            runner.LastHopAt = now;
-            if (laneIndex > runner.MaxLane)
-            {
-                runner.Score += laneIndex - runner.MaxLane;
-                runner.MaxLane = laneIndex;
-            }
+            _invoker.Run(new MoveCommand(runner, dx, dy, now));
         }
     }
 
@@ -182,7 +176,7 @@ public class Game
             string? error = null;
             if (now < mastermind.ReadyAt[(int)ability]) error = $"{name} is recharging";
             else if (mastermind.Energy < Rules.Cost(ability)) error = $"Not enough energy for {name}";
-            else if (!Abilities[ability].Use(_state, lane, column, now)) error = $"{name} can't be used there";
+            else if (!_invoker.Run(new UseAbilityCommand(Abilities[ability], _state, lane, column, now))) error = $"{name} can't be used there";
             if (error != null)
             {
                 SendMessage(id, error);
@@ -228,6 +222,7 @@ public class Game
         }
 
         _state.Lanes.Clear();
+        _invoker.Clear();
         while (_state.Lanes.Count <= LanesAhead) AddLane(now);
 
         _state.Playing = true;
