@@ -1,7 +1,8 @@
 @startuml CreationalPatterns
-title Crossy Deathmatch server: Singleton, Factory, Abstract Factory
+title Crossy Deathmatch server: Singleton, Factory Method, Abstract Factory
 
 ' Hand-written; the rendered version is creational-patterns.svg / .png.
+' Structures follow refactoring.guru/design-patterns.
 
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
@@ -14,16 +15,18 @@ hide circle
 
 ' ---------------- Singleton ----------------
 class ServerLog <<leaf>> {
-  - {static} LazyInstance : Lazy<ServerLog> {readOnly}
+  - {static} _instance : ServerLog [0..1]
+  - {static} InstanceLock : object {readOnly}
   - _lock : object {readOnly}
   - ServerLog()
-  + {static} <<property>> Instance() : ServerLog
+  + {static} GetInstance() : ServerLog
   + Info(text : string) : void
   + Error(ex : Exception) : void
   - Write(text : string) : void
 }
-ServerLog --> "1" ServerLog : -LazyInstance
+ServerLog --> "0..1" ServerLog : -_instance
 
+class Program
 interface IGameObserver <<interface>>
 class ConsoleObserver {
   + OnState(json : string) : void
@@ -31,20 +34,22 @@ class ConsoleObserver {
 }
 ConsoleObserver ..|> IGameObserver
 ConsoleObserver ..> ServerLog : <<use>>
+Program ..> ServerLog : <<use>>
 
 note right of ServerLog
   **Singleton**
   Singleton: ServerLog
-  private constructor; the only instance
-  is made lazily and returned by Instance
+  private static field _instance, private constructor,
+  static creation method GetInstance() makes the
+  instance on the first call (lock + second null check)
+  Clients: Program, Game, ConsoleObserver
 end note
 
 ' ---------------- Abstract Factory ----------------
 class Game {
   - _state : GameState
-  - Tick() : void
-  - AddLane(now : long) : void
   - UpdateLane(lane : Lane, dt : double, now : long) : void
+  - AddLane(now : long) : void
 }
 Game ..> ServerLog : <<use>>
 
@@ -76,17 +81,9 @@ abstract class LaneBuilder {
   + BuildCoins() : void
   + GetLane() : Lane
 }
-class GrassLaneBuilder {
-  + BuildTrees() : void
-  + BuildCoins() : void
-}
-class RoadLaneBuilder {
-  + BuildTraffic(now : long) : void
-  + BuildCoins() : void
-}
-class RailLaneBuilder {
-  + BuildTraffic(now : long) : void
-}
+class GrassLaneBuilder
+class RoadLaneBuilder
+class RailLaneBuilder
 GrassLaneBuilder --|> LaneBuilder
 RoadLaneBuilder --|> LaneBuilder
 RailLaneBuilder --|> LaneBuilder
@@ -94,15 +91,9 @@ RailLaneBuilder --|> LaneBuilder
 interface ILaneTraffic <<interface>> {
   + {abstract} Update(lane : Lane, dt : double, now : long) : void
 }
-class GrassTraffic {
-  + Update(lane : Lane, dt : double, now : long) : void
-}
-class RoadTraffic {
-  + Update(lane : Lane, dt : double, now : long) : void
-}
-class RailTraffic {
-  + Update(lane : Lane, dt : double, now : long) : void
-}
+class GrassTraffic
+class RoadTraffic
+class RailTraffic
 GrassTraffic ..|> ILaneTraffic
 RoadTraffic ..|> ILaneTraffic
 RailTraffic ..|> ILaneTraffic
@@ -124,14 +115,44 @@ note top of ILaneFactory
   ConcreteFactory: GrassLaneFactory, RoadLaneFactory, RailLaneFactory
   AbstractProduct: LaneBuilder, ILaneTraffic
   ConcreteProduct: *LaneBuilder, *Traffic
-  Client: Game
+  Client: Game (gets the factories from LaneFactorySetup)
 end note
 
-' ---------------- Factory ----------------
+' ---------------- Factory Method ----------------
 class ObstacleFactory <<utility>> {
+  + {static} Registry : PrototypeRegistry {readOnly}
+  - {static} CreateRegistry() : PrototypeRegistry
   + {static} Create(kind : ObstacleKind, lane : Lane, now : long, x : double [0..1] = null) : Obstacle
   + {static} CreateVehicle(lane : Lane, now : long, x : double [0..1] = null) : Obstacle
 }
+abstract class ObstacleCreator {
+  + {abstract} CreateObstacle() : Obstacle
+  + Spawn(lane : Lane, now : long, x : double [0..1] = null) : Obstacle
+  # Place(obstacle : Obstacle, lane : Lane, now : long, x : double [0..1]) : void
+}
+class CarCreator {
+  + CreateObstacle() : Obstacle
+}
+class TruckCreator {
+  + CreateObstacle() : Obstacle
+}
+class TrainCreator {
+  + CreateObstacle() : Obstacle
+}
+class FoxCreator {
+  + CreateObstacle() : Obstacle
+  # Place(obstacle : Obstacle, lane : Lane, now : long, x : double [0..1]) : void
+}
+class BoulderCreator {
+  + CreateObstacle() : Obstacle
+  # Place(obstacle : Obstacle, lane : Lane, now : long, x : double [0..1]) : void
+}
+CarCreator --|> ObstacleCreator
+TruckCreator --|> ObstacleCreator
+TrainCreator --|> ObstacleCreator
+FoxCreator --|> ObstacleCreator
+BoulderCreator --|> ObstacleCreator
+
 class Obstacle {
   + Kind : ObstacleKind
   + X : double
@@ -140,6 +161,12 @@ class Obstacle {
   + LandsAt : long
   + Landed : bool
   + ExpiresAt : long
+  + ShallowClone() : Obstacle
+  + DeepClone() : Obstacle
+}
+class PrototypeRegistry {
+  + UseDeepCopy : bool = true
+  + Create(kind : ObstacleKind) : Obstacle
 }
 enum ObstacleKind <<enumeration>> {
   Car
@@ -148,32 +175,17 @@ enum ObstacleKind <<enumeration>> {
   Fox
   Boulder
 }
-ObstacleFactory ..> Obstacle : <<create>>
-ObstacleFactory ..> ObstacleKind : <<use>>
+ObstacleCreator ..> Obstacle : <<use>>
+ObstacleFactory [kind : ObstacleKind] --> "1" ObstacleCreator : -Creators
+ObstacleFactory --> "1" PrototypeRegistry : +Registry
 
-interface IAbilityStrategy <<interface>>
-class CarAbility
-class BoulderAbility
-class FoxAbility
-hide CarAbility members
-hide BoulderAbility members
-hide FoxAbility members
-CarAbility ..|> IAbilityStrategy
-BoulderAbility ..|> IAbilityStrategy
-FoxAbility ..|> IAbilityStrategy
-
-CarAbility ..> ObstacleFactory : <<use>>
-BoulderAbility ..> ObstacleFactory : <<use>>
-FoxAbility ..> ObstacleFactory : <<use>>
-RoadLaneBuilder ..> ObstacleFactory : <<use>>
-RoadTraffic ..> ObstacleFactory : <<use>>
-RailTraffic ..> ObstacleFactory : <<use>>
-
-note bottom of ObstacleFactory
-  **Factory**
-  Factory: ObstacleFactory   Product: Obstacle
-  Clients: CarAbility, BoulderAbility, FoxAbility,
-  RoadLaneBuilder, RoadTraffic, RailTraffic
+note bottom of ObstacleCreator
+  **Factory Method**
+  Creator: ObstacleCreator (Spawn calls the factory method CreateObstacle)
+  ConcreteCreator: CarCreator, TruckCreator, TrainCreator, FoxCreator, BoulderCreator
+  Product: Obstacle (each concrete creator returns a clone of its kind's preset
+  from ObstacleFactory.Registry, so there are no concrete product classes)
+  Client: ObstacleFactory
 end note
 
 @enduml

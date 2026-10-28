@@ -6,13 +6,26 @@ namespace CrossyDeathmatch.Server;
 /// </summary>
 public sealed class ServerLog
 {
-    private static readonly Lazy<ServerLog> LazyInstance = new(() => new ServerLog());
+    private static volatile ServerLog? _instance;
+    private static readonly object InstanceLock = new();
 
     private readonly object _lock = new();
 
     private ServerLog() { }
 
-    public static ServerLog Instance => LazyInstance.Value;
+    /// <summary>Makes the instance on the first call and returns the same one after that.</summary>
+    public static ServerLog GetInstance()
+    {
+        if (_instance == null)
+        {
+            lock (InstanceLock)
+            {
+                // A thread that waited for the lock must not make a second instance.
+                if (_instance == null) _instance = new ServerLog();
+            }
+        }
+        return _instance;
+    }
 
     public void Info(string text) => Write(text);
 

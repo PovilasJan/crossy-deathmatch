@@ -34,6 +34,6 @@ public class ConsoleObserver : IGameObserver
 
     public void OnMessage(string text)
     {
-        ServerLog.Instance.Info(text);
+        ServerLog.GetInstance().Info(text);
     }
 }

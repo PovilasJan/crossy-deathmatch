@@ -38,12 +38,8 @@ public class Game
     };
 
     // Abstract Factory: one factory per lane type, each making a builder and traffic that belong together.
-    private static readonly Dictionary<LaneType, ILaneFactory> LaneFactories = new()
-    {
-        [LaneType.Grass] = new GrassLaneFactory(),
-        [LaneType.Road] = new RoadLaneFactory(),
-        [LaneType.Rail] = new RailLaneFactory(),
-    };
+    // Game is the client: it only sees ILaneFactory, the setup code picks the concrete factories.
+    private static readonly Dictionary<LaneType, ILaneFactory> LaneFactories = LaneFactorySetup.CreateFactories();
 
     private static readonly Dictionary<LaneType, LaneBuilder> Builders =
         LaneFactories.ToDictionary(f => f.Key, f => f.Value.CreateBuilder());
@@ -58,7 +54,7 @@ public class Game
         _roundSeconds = Math.Max(10, config.GetValue("round-seconds", 180));
         Attach("console", new ConsoleObserver());
         _timer = new Timer(_ => Tick(), null, 0, 1000 / Rules.TickRate);
-        ServerLog.Instance.Info($"Min players to start: {_minPlayers}   Round length: {_roundSeconds}s");
+        ServerLog.GetInstance().Info($"Min players to start: {_minPlayers}   Round length: {_roundSeconds}s");
     }
 
     private static long Now => Environment.TickCount64;
@@ -275,7 +271,7 @@ public class Game
             catch (Exception ex)
             {
                 // An exception on a timer thread would kill the server; log it and carry on instead.
-                ServerLog.Instance.Error(ex);
+                ServerLog.GetInstance().Error(ex);
             }
             SendState();
         }
