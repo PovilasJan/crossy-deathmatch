@@ -1,13 +1,11 @@
 using System.Drawing.Drawing2D;
-using System.Text.Json;
 using CrossyDeathmatch.Shared;
-using Microsoft.AspNetCore.SignalR.Client;
 
 namespace CrossyDeathmatch.Client;
 
 /// <summary>
-/// The whole client: the connect/lobby controls, the SignalR connection, and the game screen, which
-/// is drawn with System.Drawing straight onto the form.
+/// The whole client: the connect/lobby controls and the game screen, which is drawn with System.Drawing
+/// straight onto the form. It reaches the server only through <see cref="IGameServer"/>.
 /// </summary>
 public class MainForm : Form
 {
@@ -36,8 +34,8 @@ public class MainForm : Form
     private readonly Panel _lobby;
     private readonly System.Windows.Forms.Timer _frameTimer = new() { Interval = 15 };
     private readonly List<(string Text, long At)> _messages = [];
+    private readonly IGameServer _server = new SignalRGameServer();
 
-    private HubConnection? _hub;
     private GameState? _state;
     private long _stateReceivedAt;
     private string _myName = "";
@@ -96,9 +94,13 @@ public class MainForm : Form
         _lobby.Controls.Add(_infoLabel);
         Controls.Add(_lobby);
 
+        _server.StateReceived += state => OnUi(() => OnState(state));
+        _server.MessageReceived += text => OnUi(() => AddMessage(text));
+        _server.Disconnected += () => OnUi(OnDisconnected);
+
         _connectButton.Click += async (_, _) => await Connect();
-        _animalBox.SelectionChangeCommitted += (_, _) => Send("PickAnimal", _animalBox.SelectedItem);
-        _readyButton.Click += (_, _) => Send("SetReady", !(Me?.Ready ?? false));
+        _animalBox.SelectionChangeCommitted += (_, _) => _server.PickAnimal((Animal)_animalBox.SelectedItem!);
+        _readyButton.Click += (_, _) => _server.SetReady(!(Me?.Ready ?? false));
         _frameTimer.Tick += (_, _) => Invalidate();
     }
 
@@ -118,24 +120,9 @@ public class MainForm : Form
         _connectButton.Enabled = false;
         try
         {
-            if (_hub != null) await _hub.DisposeAsync();
-
-            var hub = new HubConnectionBuilder().WithUrl(_serverBox.Text.Trim().TrimEnd('/') + "/game").Build();
-            hub.On<string>("State", json => OnUi(() => OnState(json)));
-            hub.On<string>("Message", text => OnUi(() => AddMessage(text)));
-            hub.Closed += _ =>
-            {
-                OnUi(() =>
-                {
-                    if (_hub == hub) OnDisconnected();
-                });
-                return Task.CompletedTask;
-            };
-            _hub = hub;
-
-            await hub.StartAsync();
+            await _server.ConnectAsync(_serverBox.Text);
             _myName = name;
-            await hub.SendAsync("Join", name);
+            await _server.JoinAsync(name);
         }
         catch (Exception ex)
         {
@@ -147,12 +134,7 @@ public class MainForm : Form
         }
     }
 
-    private void Send(string method, params object?[] args)
-    {
-        if (_hub?.State == HubConnectionState.Connected) _ = _hub.SendCoreAsync(method, args);
-    }
-
-    /// <summary>SignalR calls back on a background thread; controls may only be touched on the UI thread.</summary>
+    /// <summary>The server's events arrive on a background thread; controls may only be touched on the UI thread.</summary>
     private void OnUi(Action action)
     {
         if (IsDisposed || !IsHandleCreated) return;
@@ -166,9 +148,9 @@ public class MainForm : Form
         }
     }
 
-    private void OnState(string json)
+    private void OnState(GameState state)
     {
-        _state = JsonSerializer.Deserialize<GameState>(json);
+        _state = state;
         _stateReceivedAt = Environment.TickCount64;
 
         var me = Me;
@@ -238,7 +220,7 @@ public class MainForm : Form
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
         _frameTimer.Stop();
-        _ = _hub?.DisposeAsync();
+        _ = _server.DisposeAsync();
         base.OnFormClosing(e);
     }
 
@@ -253,7 +235,7 @@ public class MainForm : Form
         {
             if (keyData == Keys.Escape) _selected = null;
             else if (keyData is >= Keys.D1 and <= Keys.D4) Choose((Ability)(keyData - Keys.D1));
-            else if (keyData == Keys.Z) Send("UndoAbility");
+            else if (keyData == Keys.Z) _server.UndoAbility();
             else return base.ProcessCmdKey(ref msg, keyData);
             return true;
         }
@@ -267,7 +249,7 @@ public class MainForm : Form
             _ => (0, 0),
         };
         if (dx == 0 && dy == 0) return base.ProcessCmdKey(ref msg, keyData);
-        Send("Move", dx, dy);
+        _server.Move(dx, dy);
         return true;
     }
 
@@ -298,7 +280,7 @@ public class MainForm : Form
         if (_selected is { } selected)
         {
             var (lane, column) = ScreenToWorld(e.Location);
-            Send("UseAbility", selected, lane, column);
+            _server.UseAbility(selected, lane, column);
         }
     }
 
@@ -308,7 +290,7 @@ public class MainForm : Form
         if (ability == Ability.Rain)
         {
             _selected = null;
-            Send("UseAbility", ability, 0, 0);
+            _server.UseAbility(ability, 0, 0);
             return;
         }
         _selected = _selected == ability ? null : ability;
