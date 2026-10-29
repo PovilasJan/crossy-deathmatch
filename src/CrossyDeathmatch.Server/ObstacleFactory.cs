@@ -3,8 +3,9 @@ using CrossyDeathmatch.Shared;
 namespace CrossyDeathmatch.Server;
 
 /// <summary>
-/// Factory: the one place obstacles are made. The map, the traffic and the Mastermind's abilities
-/// ask for a kind and get a ready obstacle, so none of them needs to know its length, speed or timers.
+/// Factory Method client: the one place obstacles are asked for. The map, the traffic and the Mastermind's
+/// abilities ask for a kind and get a ready obstacle from that kind's creator, so none of them needs to know
+/// its length, speed or timers.
 /// </summary>
 public static class ObstacleFactory
 {
@@ -21,34 +22,19 @@ public static class ObstacleFactory
         return registry;
     }
 
-    /// <summary>Without an X, traffic enters from the lane's upstream edge. A fox always starts on a random side.</summary>
-    public static Obstacle Create(ObstacleKind kind, Lane lane, long now, double? x = null)
+    // Factory Method: one concrete creator per kind; each one makes and places its own obstacles.
+    private static readonly Dictionary<ObstacleKind, ObstacleCreator> Creators = new()
     {
-        var obstacle = Registry.Create(kind);
-        switch (kind)
-        {
-            case ObstacleKind.Car:
-            case ObstacleKind.Truck:
-            case ObstacleKind.Train:
-                obstacle.Speed = lane.Speed;
-                obstacle.X = x ?? (lane.Speed > 0 ? -obstacle.Length : Rules.GridWidth);
-                break;
+        [ObstacleKind.Car] = new CarCreator(),
+        [ObstacleKind.Truck] = new TruckCreator(),
+        [ObstacleKind.Train] = new TrainCreator(),
+        [ObstacleKind.Fox] = new FoxCreator(),
+        [ObstacleKind.Boulder] = new BoulderCreator(),
+    };
 
-            case ObstacleKind.Fox:
-                var fromLeft = Random.Shared.Next(2) == 0;
-                obstacle.X = fromLeft ? 0 : Rules.GridWidth - 1;
-                obstacle.Speed = fromLeft ? obstacle.Speed : -obstacle.Speed;
-                obstacle.ExpiresAt = now + Rules.FoxLifeMs;
-                break;
-
-            case ObstacleKind.Boulder:
-                obstacle.X = x ?? 0;
-                obstacle.LandsAt = now + Rules.BoulderFallMs;
-                obstacle.ExpiresAt = now + Rules.BoulderFallMs + Rules.BoulderLifeMs;
-                break;
-        }
-        return obstacle;
-    }
+    /// <summary>Picks the creator for the kind and lets it spawn the obstacle on the lane.</summary>
+    public static Obstacle Create(ObstacleKind kind, Lane lane, long now, double? x = null) =>
+        Creators[kind].Spawn(lane, now, x);
 
     /// <summary>A car, or now and then a truck.</summary>
     public static Obstacle CreateVehicle(Lane lane, long now, double? x = null) =>

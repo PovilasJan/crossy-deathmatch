@@ -13,7 +13,7 @@ if (builder.Configuration.GetValue("prototype-demo", false))
 }
 
 ObstacleFactory.Registry.UseDeepCopy = builder.Configuration.GetValue("deep-copy", true);
-ServerLog.Instance.Info($"Obstacle copies: {(ObstacleFactory.Registry.UseDeepCopy ? "deep" : "shallow")}");
+ServerLog.GetInstance().Info($"Obstacle copies: {(ObstacleFactory.Registry.UseDeepCopy ? "deep" : "shallow")}");
 
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 builder.Services.AddSignalR();
@@ -26,14 +26,14 @@ app.MapHub<GameHub>("/game");
 // Create the game now so its timer is running before anyone connects.
 app.Services.GetRequiredService<Game>();
 
-ServerLog.Instance.Info($"Crossy Deathmatch server on port {port}");
-ServerLog.Instance.Info($"  This machine:  http://localhost:{port}");
+ServerLog.GetInstance().Info($"Crossy Deathmatch server on port {port}");
+ServerLog.GetInstance().Info($"  This machine:  http://localhost:{port}");
 foreach (var address in NetworkInterface.GetAllNetworkInterfaces()
              .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
              .SelectMany(n => n.GetIPProperties().UnicastAddresses)
              .Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork))
 {
-    ServerLog.Instance.Info($"  Same network:  http://{address.Address}:{port}");
+    ServerLog.GetInstance().Info($"  Same network:  http://{address.Address}:{port}");
 }
 
 app.Run();

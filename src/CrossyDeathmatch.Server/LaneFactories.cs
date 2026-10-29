@@ -12,6 +12,20 @@ public interface ILaneFactory
     ILaneTraffic CreateTraffic();
 }
 
+/// <summary>
+/// The setup code: the only place that names the concrete factories. Game gets them back as
+/// <see cref="ILaneFactory"/>, so it never knows which concrete factory it is using.
+/// </summary>
+public static class LaneFactorySetup
+{
+    public static Dictionary<LaneType, ILaneFactory> CreateFactories() => new()
+    {
+        [LaneType.Grass] = new GrassLaneFactory(),
+        [LaneType.Road] = new RoadLaneFactory(),
+        [LaneType.Rail] = new RailLaneFactory(),
+    };
+}
+
 public class GrassLaneFactory : ILaneFactory
 {
     public LaneBuilder CreateBuilder() => new GrassLaneBuilder();
