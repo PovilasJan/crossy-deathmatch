@@ -113,7 +113,7 @@ the game loop never change it at the same time. The state is turned into JSON wh
 | File | What it is |
 |---|---|
 | `class-diagram.puml` | PlantUML source |
-| `creational-patterns.svg` / `.png` / `.puml` | Singleton (`ServerLog`), Factory (`ObstacleFactory`) and Abstract Factory (`ILaneFactory`) |
+| `creational-patterns.svg` / `.png` / `.puml` | Singleton (`ServerLog`), Factory Method (`ObstacleCreator`) and Abstract Factory (`LaneFactory`) |
 | `CrossyDeathmatch.uml` / `.xmi` | UML model to import into MSOSA / MagicDraw, see [`MSOSA-IMPORT.md`](docs/uml/MSOSA-IMPORT.md) |
 
 ```bash

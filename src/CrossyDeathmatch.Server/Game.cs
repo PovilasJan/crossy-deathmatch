@@ -37,15 +37,19 @@ public class Game
         [Ability.Rain] = new RainAbility(),
     };
 
-    // Abstract Factory: one factory per lane type, each making a builder and traffic that belong together.
-    // Game is the client: it only sees ILaneFactory, the setup code picks the concrete factories.
-    private static readonly Dictionary<LaneType, ILaneFactory> LaneFactories = LaneFactorySetup.CreateFactories();
+    // Abstract Factory: one factory per lane type, each making a builder, traffic and a respawn rule that belong
+    // together. Game is the client: it only sees LaneFactory and the abstract products, the setup code picks the
+    // concrete factories.
+    private static readonly Dictionary<LaneType, LaneFactory> LaneFactories = LaneFactorySetup.CreateFactories();
 
     private static readonly Dictionary<LaneType, LaneBuilder> Builders =
         LaneFactories.ToDictionary(f => f.Key, f => f.Value.CreateBuilder());
 
-    private static readonly Dictionary<LaneType, ILaneTraffic> Traffic =
+    private static readonly Dictionary<LaneType, LaneTraffic> Traffic =
         LaneFactories.ToDictionary(f => f.Key, f => f.Value.CreateTraffic());
+
+    private static readonly Dictionary<LaneType, LaneRespawn> Respawns =
+        LaneFactories.ToDictionary(f => f.Key, f => f.Value.CreateRespawn());
 
     public Game(IHubContext<GameHub> hub, IConfiguration config)
     {
@@ -361,18 +365,18 @@ public class Game
         Announce($"{runner.Name} {cause} ({runner.Lives} {(runner.Lives == 1 ? "life" : "lives")} left)");
     }
 
-    /// <summary>Puts the runner on the nearest free grass tile at or behind where they died.</summary>
+    /// <summary>
+    /// Puts the runner on the nearest free grass tile at or behind where they died. Each lane type's respawn rule
+    /// says whether and where that is possible on its lanes (only grass allows it).
+    /// </summary>
     private void Respawn(Player runner, long now)
     {
-        foreach (var lane in _state.Lanes.Where(l => l.Index <= runner.Lane && l.Type == LaneType.Grass).OrderByDescending(l => l.Index))
+        foreach (var lane in _state.Lanes.Where(l => l.Index <= runner.Lane).OrderByDescending(l => l.Index))
         {
-            var free = Enumerable.Range(0, Rules.GridWidth)
-                .Where(c => !IsBlocked(lane, c))
-                .OrderBy(c => Math.Abs(c - runner.X))
-                .ToList();
-            if (free.Count == 0) continue;
+            var column = Respawns[lane.Type].FindColumn(lane, runner.X);
+            if (column == null) continue;
 
-            runner.X = free[0];
+            runner.X = column.Value;
             runner.Lane = lane.Index;
             break;
         }

@@ -12,6 +12,9 @@ if (builder.Configuration.GetValue("prototype-demo", false))
     return;
 }
 
+// Singleton: before anything else uses the log, show that ServerLog.GetInstance() is thread safe.
+SingletonDemo.Run();
+
 ObstacleFactory.Registry.UseDeepCopy = builder.Configuration.GetValue("deep-copy", true);
 ServerLog.GetInstance().Info($"Obstacle copies: {(ObstacleFactory.Registry.UseDeepCopy ? "deep" : "shallow")}");
 

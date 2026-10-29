@@ -4,7 +4,7 @@ namespace CrossyDeathmatch.Server;
 
 /// <summary>
 /// Factory Method: the creator. <see cref="Spawn"/> is the logic every obstacle shares;
-/// <see cref="CreateObstacle"/> is the factory method each concrete creator overrides to make its own kind.
+/// <see cref="CreateObstacle"/> is the factory method each concrete creator overrides to make its own product.
 /// </summary>
 public abstract class ObstacleCreator
 {
@@ -26,24 +26,27 @@ public abstract class ObstacleCreator
     }
 }
 
+// The concrete creators. Each one makes its own concrete product: a copy of that product's prototype in
+// ObstacleFactory.Registry (the Prototype pattern), so lengths and speeds are not repeated here.
+
 public class CarCreator : ObstacleCreator
 {
-    public override Obstacle CreateObstacle() => ObstacleFactory.Registry.Create(ObstacleKind.Car);
+    public override Obstacle CreateObstacle() => (Car)ObstacleFactory.Registry.Create(ObstacleKind.Car);
 }
 
 public class TruckCreator : ObstacleCreator
 {
-    public override Obstacle CreateObstacle() => ObstacleFactory.Registry.Create(ObstacleKind.Truck);
+    public override Obstacle CreateObstacle() => (Truck)ObstacleFactory.Registry.Create(ObstacleKind.Truck);
 }
 
 public class TrainCreator : ObstacleCreator
 {
-    public override Obstacle CreateObstacle() => ObstacleFactory.Registry.Create(ObstacleKind.Train);
+    public override Obstacle CreateObstacle() => (Train)ObstacleFactory.Registry.Create(ObstacleKind.Train);
 }
 
 public class FoxCreator : ObstacleCreator
 {
-    public override Obstacle CreateObstacle() => ObstacleFactory.Registry.Create(ObstacleKind.Fox);
+    public override Obstacle CreateObstacle() => (Fox)ObstacleFactory.Registry.Create(ObstacleKind.Fox);
 
     /// <summary>A fox always starts on a random side and leaves after a while.</summary>
     protected override void Place(Obstacle obstacle, Lane lane, long now, double? x)
@@ -57,7 +60,7 @@ public class FoxCreator : ObstacleCreator
 
 public class BoulderCreator : ObstacleCreator
 {
-    public override Obstacle CreateObstacle() => ObstacleFactory.Registry.Create(ObstacleKind.Boulder);
+    public override Obstacle CreateObstacle() => (Boulder)ObstacleFactory.Registry.Create(ObstacleKind.Boulder);
 
     protected override void Place(Obstacle obstacle, Lane lane, long now, double? x)
     {
@@ -66,3 +69,16 @@ public class BoulderCreator : ObstacleCreator
         obstacle.ExpiresAt = now + Rules.BoulderFallMs + Rules.BoulderLifeMs;
     }
 }
+
+// The concrete products: Obstacle is the product. They go to the clients as plain Obstacles, because the
+// JSON is written for the declared type (List<Obstacle>), and Kind still tells them apart there.
+
+public class Car : Obstacle { }
+
+public class Truck : Obstacle { }
+
+public class Train : Obstacle { }
+
+public class Fox : Obstacle { }
+
+public class Boulder : Obstacle { }

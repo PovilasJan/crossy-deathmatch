@@ -5,7 +5,7 @@ namespace CrossyDeathmatch.Server;
 /// <summary>
 /// Factory Method client: the one place obstacles are asked for. The map, the traffic and the Mastermind's
 /// abilities ask for a kind and get a ready obstacle from that kind's creator, so none of them needs to know
-/// its length, speed or timers.
+/// its class, length, speed or timers. It only works with creators through <see cref="ObstacleCreator"/>.
 /// </summary>
 public static class ObstacleFactory
 {
@@ -14,11 +14,11 @@ public static class ObstacleFactory
     private static PrototypeRegistry CreateRegistry()
     {
         var registry = new PrototypeRegistry();
-        registry.Add(ObstacleKind.Car, new Obstacle { Kind = ObstacleKind.Car, Length = 1 });
-        registry.Add(ObstacleKind.Truck, new Obstacle { Kind = ObstacleKind.Truck, Length = 2 });
-        registry.Add(ObstacleKind.Train, new Obstacle { Kind = ObstacleKind.Train, Length = 12 });
-        registry.Add(ObstacleKind.Fox, new Obstacle { Kind = ObstacleKind.Fox, Speed = 2.2 });
-        registry.Add(ObstacleKind.Boulder, new Obstacle { Kind = ObstacleKind.Boulder });
+        registry.Add(ObstacleKind.Car, new Car { Kind = ObstacleKind.Car, Length = 1 });
+        registry.Add(ObstacleKind.Truck, new Truck { Kind = ObstacleKind.Truck, Length = 2 });
+        registry.Add(ObstacleKind.Train, new Train { Kind = ObstacleKind.Train, Length = 12 });
+        registry.Add(ObstacleKind.Fox, new Fox { Kind = ObstacleKind.Fox, Speed = 2.2 });
+        registry.Add(ObstacleKind.Boulder, new Boulder { Kind = ObstacleKind.Boulder });
         return registry;
     }
 
