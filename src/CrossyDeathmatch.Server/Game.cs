@@ -5,14 +5,12 @@ using Microsoft.AspNetCore.SignalR;
 namespace CrossyDeathmatch.Server;
 
 /// <summary>
-/// The whole game: the lobby, the round simulation and the endless map. Everything lives in one
-/// <see cref="GameState"/>, and every method locks it, including the 20 Hz timer, so the hub
-/// threads and the game loop never touch it at the same time.
+/// The whole game: the lobby and the round simulation, with the endless map behind <see cref="GameMap"/>.
+/// Everything lives in one <see cref="GameState"/>, and every method locks it, including the 20 Hz timer,
+/// so the hub threads and the game loop never touch it at the same time.
 /// </summary>
 public class Game
 {
-    private const int LanesAhead = 20;
-    private const int LanesBehind = 8;
     internal const int StartLanes = 5;
     internal const double MinCarGap = 2;
     internal const double MaxCarGap = 5;
@@ -20,6 +18,8 @@ public class Game
 
     private readonly IHubContext<GameHub> _hub;
     private readonly GameState _state = new();
+    private readonly GameMap _map;
+    private readonly Collisions _collisions;
     private readonly Dictionary<string, IGameObserver> _observers = new();
     private readonly Invoker _moveInvoker = new();
     private readonly Invoker _abilityInvoker = new();
@@ -37,23 +37,11 @@ public class Game
         [Ability.Rain] = new RainAbility(),
     };
 
-    // Abstract Factory: one factory per lane type, each making a builder and traffic that belong together.
-    private static readonly Dictionary<LaneType, ILaneFactory> LaneFactories = new()
-    {
-        [LaneType.Grass] = new GrassLaneFactory(),
-        [LaneType.Road] = new RoadLaneFactory(),
-        [LaneType.Rail] = new RailLaneFactory(),
-    };
-
-    private static readonly Dictionary<LaneType, LaneBuilder> Builders =
-        LaneFactories.ToDictionary(f => f.Key, f => f.Value.CreateBuilder());
-
-    private static readonly Dictionary<LaneType, ILaneTraffic> Traffic =
-        LaneFactories.ToDictionary(f => f.Key, f => f.Value.CreateTraffic());
-
     public Game(IHubContext<GameHub> hub, IConfiguration config)
     {
         _hub = hub;
+        _map = new GameMap(_state.Lanes);
+        _collisions = new Collisions(_map);
         _minPlayers = Math.Clamp(config.GetValue("min-players", Rules.MaxPlayers), 1, Rules.MaxPlayers);
         _roundSeconds = Math.Max(10, config.GetValue("round-seconds", 180));
         Attach("console", new ConsoleObserver());
@@ -159,7 +147,7 @@ public class Game
 
             var x = runner.X + dx;
             var laneIndex = runner.Lane + dy;
-            var lane = GetLane(laneIndex);
+            var lane = _map.GetLane(laneIndex);
             if (x < 0 || x >= Rules.GridWidth) return;
             if (laneIndex < runner.MaxLane - Rules.BacktrackLimit) return;
             if (lane == null || IsBlocked(lane, x)) return;
@@ -176,7 +164,7 @@ public class Game
             var mastermind = Find(id);
             if (!_state.Playing || mastermind == null || !mastermind.IsMastermind || mastermind.Left) return;
 
-            var lane = GetLane(laneIndex);
+            var lane = _map.GetLane(laneIndex);
             var name = Rules.Name(ability);
             string? error = null;
             if (now < mastermind.ReadyAt[(int)ability]) error = $"{name} is recharging";
@@ -246,10 +234,9 @@ public class Game
             player.ReadyAt = new long[4];
         }
 
-        _state.Lanes.Clear();
+        _map.Reset(now);
         _moveInvoker.Clear();
         _abilityInvoker.Clear();
-        while (_state.Lanes.Count <= LanesAhead) AddLane(now);
 
         _state.Playing = true;
         _state.Result = null;
@@ -284,7 +271,7 @@ public class Game
     private void Simulate(long now, double dt)
     {
         _state.TimeLeftMs = (int)Math.Max(0, _endsAt - now);
-        foreach (var lane in _state.Lanes) UpdateLane(lane, dt, now);
+        foreach (var (lane, boulder) in _map.Update(dt, now)) Crush(lane, boulder, now);
 
         foreach (var runner in Runners.Where(r => !r.Out))
         {
@@ -294,19 +281,14 @@ public class Game
                 continue;
             }
 
-            var lane = GetLane(runner.Lane);
-            if (lane == null) continue;
-
-            // The hitbox is a little narrower than the tile, so grazing a bumper is forgiven.
-            var hit = lane.Obstacles.FirstOrDefault(o =>
-                o.Kind != ObstacleKind.Boulder && o.X + o.Hitbox.Inset < runner.X + 1 && o.X + o.Length - o.Hitbox.Inset > runner.X);
+            var hit = _collisions.HitBy(runner);
             if (hit != null && now >= runner.InvulnerableUntil)
             {
                 Hit(runner, Cause(hit.Kind), now);
                 continue;
             }
 
-            if (lane.Coins.Remove(runner.X))
+            if (_collisions.TakeCoin(runner))
             {
                 runner.Coins++;
                 runner.Score += Rules.PointsPerCoin;
@@ -318,13 +300,8 @@ public class Game
             mastermind.Energy = Math.Min(Rules.MaxEnergy, mastermind.Energy + Rules.EnergyPerSecond * dt);
         }
 
-        // Generate lanes ahead of the leader and drop the ones far behind the last runner.
         var active = Runners.Where(r => !r.Out).ToList();
-        if (active.Count > 0)
-        {
-            while (_state.Lanes[^1].Index < active.Max(r => r.Lane) + LanesAhead) AddLane(now);
-            while (_state.Lanes[0].Index < active.Min(r => r.Lane) - LanesBehind) _state.Lanes.RemoveAt(0);
-        }
+        if (active.Count > 0) _map.Follow(active.Min(r => r.Lane), active.Max(r => r.Lane), now);
 
         if (Runners.All(r => r.Out) || now >= _endsAt) EndRound();
     }
@@ -342,7 +319,7 @@ public class Game
 
         _state.Result = winner + "\n" + string.Join("\n", lines);
         _state.Playing = false;
-        _state.Lanes.Clear();
+        _map.Clear();
         _state.Players.RemoveAll(p => p.Left);
         foreach (var player in _state.Players)
         {
@@ -393,75 +370,20 @@ public class Game
         _ => "was caught by a fox",
     };
 
-    // ---- the map ----
-
-    private void UpdateLane(Lane lane, double dt, long now)
+    /// <summary>A boulder that has just landed crushes whoever is standing under it.</summary>
+    private void Crush(Lane lane, Obstacle boulder, long now)
     {
-        foreach (var obstacle in lane.Obstacles)
-        {
-            obstacle.X += obstacle.Speed * dt;
-
-            if (obstacle.Kind == ObstacleKind.Fox)
-            {
-                // A fox turns around at the edges instead of leaving.
-                var max = Rules.GridWidth - 1;
-                if (obstacle.X < 0)
-                {
-                    obstacle.X = -obstacle.X;
-                    obstacle.Speed = Math.Abs(obstacle.Speed);
-                }
-                else if (obstacle.X > max)
-                {
-                    obstacle.X = 2 * max - obstacle.X;
-                    obstacle.Speed = -Math.Abs(obstacle.Speed);
-                }
-            }
-
-            if (obstacle.Kind == ObstacleKind.Boulder && !obstacle.Landed && now >= obstacle.LandsAt)
-            {
-                obstacle.Landed = true;
-                var crushed = Runners.Where(r => r.Lane == lane.Index && r.X == (int)obstacle.X && !r.Out &&
-                                                 r.RespawnAt == 0 && now >= r.InvulnerableUntil).ToList();
-                foreach (var runner in crushed) Hit(runner, "was crushed by a boulder", now);
-            }
-        }
-
-        lane.Obstacles.RemoveAll(o =>
-            (o.ExpiresAt > 0 && now >= o.ExpiresAt) ||
-            (o.Kind != ObstacleKind.Fox && o.Speed > 0 && o.X > Rules.GridWidth + 1) ||
-            (o.Kind != ObstacleKind.Fox && o.Speed < 0 && o.X + o.Length < -1));
-
-        Traffic[lane.Type].Update(lane, dt, now);
+        var crushed = Runners.Where(r => r.Lane == lane.Index && r.X == (int)boulder.X && !r.Out &&
+                                         r.RespawnAt == 0 && now >= r.InvulnerableUntil).ToList();
+        foreach (var runner in crushed) Hit(runner, "was crushed by a boulder", now);
     }
 
-    /// <summary>
-    /// Adds the next lane on top of the map: the first lanes are grass, after that a random type.
-    /// Builder: this is the director, the lane builders do the steps that differ per lane type.
-    /// </summary>
-    private void AddLane(long now)
-    {
-        var index = _state.Lanes.Count > 0 ? _state.Lanes[^1].Index + 1 : 0;
-        var type = index < StartLanes ? LaneType.Grass : (LaneType)Random.Shared.Next(3); // 0 Grass, 1 Road, 2 Rail
-
-        var builder = Builders[type];
-        builder.Reset(index, type);
-        builder.BuildTrees();
-        builder.BuildTraffic(now);
-        builder.BuildCoins();
-        _state.Lanes.Add(builder.GetLane());
-    }
+    // ---- helpers, also used by the map's builders and traffic and by the abilities ----
 
     internal static void AddCoin(Lane lane, double chance)
     {
         var free = Enumerable.Range(0, Rules.GridWidth).Where(c => !lane.Trees.Contains(c)).ToList();
         if (free.Count > 0 && Chance(chance)) lane.Coins.Add(free[Random.Shared.Next(free.Count)]);
-    }
-
-    private Lane? GetLane(int index)
-    {
-        if (_state.Lanes.Count == 0) return null;
-        var position = index - _state.Lanes[0].Index;
-        return position >= 0 && position < _state.Lanes.Count ? _state.Lanes[position] : null;
     }
 
     internal static bool IsBlocked(Lane lane, int column) =>

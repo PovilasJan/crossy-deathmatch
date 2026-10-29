@@ -12,8 +12,8 @@ if (builder.Configuration.GetValue("prototype-demo", false))
     return;
 }
 
-ObstacleFactory.Registry.UseDeepCopy = builder.Configuration.GetValue("deep-copy", true);
-ServerLog.Instance.Info($"Obstacle copies: {(ObstacleFactory.Registry.UseDeepCopy ? "deep" : "shallow")}");
+GameMap.UseDeepCopy = builder.Configuration.GetValue("deep-copy", true);
+ServerLog.Instance.Info($"Obstacle copies: {(GameMap.UseDeepCopy ? "deep" : "shallow")}");
 
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 builder.Services.AddSignalR();
