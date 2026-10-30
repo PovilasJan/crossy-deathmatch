@@ -110,7 +110,6 @@ public class GrassRespawn : LaneRespawn
     }
 }
 
-/// <summary>Nobody comes back on a road. A null object, so Game needs no lane type check.</summary>
 public class RoadRespawn : LaneRespawn
 {
     public override int? FindColumn(Lane lane, int nearColumn) => null;

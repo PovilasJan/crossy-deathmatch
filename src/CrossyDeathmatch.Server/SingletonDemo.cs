@@ -1,11 +1,5 @@
 namespace CrossyDeathmatch.Server;
 
-/// <summary>
-/// Shows that the <see cref="ServerLog"/> singleton is thread safe. Program runs it at every server start, before
-/// anything else has asked for the log: several threads are released at the same moment and all call
-/// <see cref="ServerLog.GetInstance"/> while the instance does not exist yet. The log then shows
-/// "ServerLog initialized" once, and every thread got the same object.
-/// </summary>
 public static class SingletonDemo
 {
     private const int Threads = 8;

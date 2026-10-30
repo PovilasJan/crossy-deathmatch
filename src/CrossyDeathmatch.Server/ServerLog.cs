@@ -11,24 +11,18 @@ public sealed class ServerLog
 
     private readonly object _lock = new();
 
-    /// <summary>Private, so only <see cref="GetInstance"/> can make the instance. It logs itself, so the log shows it ran once.</summary>
     private ServerLog()
     {
         Write("ServerLog initialized");
     }
 
-    /// <summary>
-    /// Makes the instance on the first call and returns the same one after that. Thread safe: the lock lets one
-    /// thread at a time make the instance, and the second null check stops a thread that waited for the lock from
-    /// making another one. <see cref="SingletonDemo"/> shows it at every server start.
-    /// </summary>
+
     public static ServerLog GetInstance()
     {
         if (_instance == null)
         {
             lock (InstanceLock)
             {
-                // A thread that waited for the lock must not make a second instance.
                 if (_instance == null) _instance = new ServerLog();
             }
         }
